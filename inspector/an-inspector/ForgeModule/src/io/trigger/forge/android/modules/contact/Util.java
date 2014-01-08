@@ -158,15 +158,19 @@ class Util {
 	 * @param cursor database cursor into provider results
 	 * @param name
 	 * @param columnMemo
-	 * @return specified value, or null if not found 
+	 * @return specified value, or an empty string if not found 
 	 */
 	private static String getValue(Cursor cursor, String name, Map<String, Integer> columnMemo) {
-		return cursor.getString(getColumnIndex(name, columnMemo));
+		try {
+			return cursor.getString(getColumnIndex(name, columnMemo));
+		} catch (Exception e) {
+			return "";
+		}
 	}
 	
 	private static int getValueOrMinusOne(Cursor cursor, String name, Map<String, Integer> columnMemo) {
 		String value = getValue(cursor, name, columnMemo);
-		if (null == value) {
+		if ("" == value) {
 			return -1;
 		} else {
 			return Integer.parseInt(value); 
@@ -569,20 +573,22 @@ class Util {
 			organizations.add(organization);
 			contact.add("organizations", organizations);
 		} else if (mimeType.equals(ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE)) {
-			JsonObject photo = new JsonObject();
 			JsonArray photos;
-			byte[] photoData = cursor.getBlob(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO));
-			if (photoData != null) {
-				photo.addProperty("value", "data:image/jpg;base64," + Base64.encodeToString(photoData, Base64.NO_WRAP));
-				photo.addProperty("pref", false);
-			}
-			
 			if (contact.has("photos")) {
 				photos = contact.getAsJsonArray("photos");
 			} else {
 				photos = new JsonArray();
 			}
-			photos.add(photo);
+			try {
+				JsonObject photo = new JsonObject();
+				byte[] photoData = cursor.getBlob(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO));
+				if (photoData != null) {
+					photo.addProperty("value", "data:image/jpg;base64," + Base64.encodeToString(photoData, Base64.NO_WRAP));
+					photo.addProperty("pref", false);
+				}
+				photos.add(photo);
+			} catch (Exception e) {
+			}
 			contact.add("photos", photos);
 		}
 		return contact;

@@ -1,8 +1,8 @@
 {
-    "changes": "* Fix format of `name` field returned on iOS.", 
+    "changes": "* Fix Android crash on forge.contact.selectAll(['id'])", 
     "description": "Access contacts saved by the user on their device.\n\nThe contact module allows you to programmatically, or via a user prompt, load contact information from the devices contact list.", 
     "min_platform_version": "v2.1.0", 
-    "name": "contact", 
+    "namespace": "contact", 
     "platform_version": "v2.1.0", 
-    "version": "2.2"
+    "version": "2.3"
 }
