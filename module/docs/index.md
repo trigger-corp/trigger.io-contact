@@ -30,7 +30,7 @@ Contacts are represented by a simple JavaScript object which follows the [W3C Co
 !platforms: iOS, Android
 !param: error `function(content)` called with details of any error which may occur
 
-##Contact object
+##Contact object 
 
 When using ``selectAll``, the returned contacts list would look
 something like:
