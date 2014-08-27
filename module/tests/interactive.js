@@ -1,6 +1,7 @@
 module("forge.contact");
 
 if (forge.is.mobile()) {
+
 	asyncTest("Select all", 1, function() {
 		forge.contact.selectAll(['name'], function (data) {
 			askQuestion("We found "+data.length+" contacts - sound right?", {
@@ -106,4 +107,70 @@ if (forge.is.mobile()) {
 		};
 		askQuestion("When prompted cancel selecting a contact	", { Yes: runTest, No: runTest });
 	});
+
+	asyncTest("Add contact", 1, function() {
+		var runTest = function () {
+			var contact = {
+				"name": {
+					"familyName": "Bloggs",
+					"givenName": "Joe",
+					"middleName": null,
+					"honorificPrefix": "Mr",
+					"honorificSuffix": null
+				},
+				"nickname": "Joe",
+				"phoneNumbers": [ {
+					"value": "+447554639203",
+					"type": "work"
+				}, {
+					"value": "+27824485158",
+					"type": "iPhone"
+				} ],
+				"emails": [ {
+					"value": "joe-bloggs@trigger.io",
+					"type": "work"
+				} ],
+				"addresses": [ {
+					"country": "United Kingdom",
+					"locality": "London",
+					"postalCode": "N1 6DL",
+					"region": "London",
+					"streetAddress": "1-11 Baches Street",
+					"type": "work"
+				} ],
+				"birthday": "1983-11-23",
+				"note": "Any text can go here"
+			};
+			forge.contact.add(contact, function (data) {
+				askQuestion("Contact added: " + JSON.stringify(data) + " - sound right?", {
+					Yes: function () {
+						ok(true, "User claims success");
+						start();
+					}, 
+					No: function () {
+						ok(false, "User claims failure");
+						start();
+					}
+				});
+			}, function (e) {
+				ok(false, "Error callback fired: " + e.message);
+				start();
+			});
+		};
+		askQuestion("When prompted add a contact", { Yes: runTest, No: runTest });
+	});
+
+	asyncTest("Add contact (cancel)", 1, function() {
+		var runTest = function () {
+			forge.contact.add({}, function () {
+				ok(false, "Success callback fired");
+				start();
+			}, function (e) {
+				ok(true, "Error callback fired: "+e.message);
+				start();
+			});
+		};
+		askQuestion("When prompted cancel adding a contact", { Yes: runTest, No: runTest });
+	});
+
 }

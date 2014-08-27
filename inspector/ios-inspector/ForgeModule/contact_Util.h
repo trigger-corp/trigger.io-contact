@@ -12,5 +12,6 @@
 @interface contact_Util : NSObject
 
 + (NSDictionary*) dictFrom:(ABRecordRef)contact withFields:(NSArray*)fields;
++ (ABRecordRef) personFrom:(NSDictionary *)contact;
 
 @end

@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <AddressBookUI/AddressBookUI.h>
 
-@interface contact_Delegate : NSObject <ABPeoplePickerNavigationControllerDelegate> {
+@interface contact_Delegate : NSObject <ABPeoplePickerNavigationControllerDelegate, ABNewPersonViewControllerDelegate> {
 	ForgeTask *task;
 	contact_Delegate *me;
 }

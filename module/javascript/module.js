@@ -12,5 +12,13 @@ forge['contact'] = {
 			fields = [];
 		}
 		forge.internal.call("contact.selectAll", {fields: fields}, success, error);
+	},
+	'add': function (contact, success, error) {
+		if (typeof contact === "function") {
+			error = success;
+			success = contact;
+			contact = {};
+		}
+		forge.internal.call("contact.add", {contact: contact}, success, error);
 	}
 };

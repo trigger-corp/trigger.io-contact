@@ -72,4 +72,22 @@
     return accessGranted;
 }
 
++ (void)add:(ForgeTask*)task contact:(NSDictionary*) contact {
+    ABRecordRef person = [contact_Util personFrom:contact];
+    if (person == NULL) {
+        [task error:@"Not a valid contact"];
+        return;
+    }
+    
+    ABNewPersonViewController *controller = [[ABNewPersonViewController alloc] init];
+    controller.displayedPerson = person;
+    contact_Delegate *delegate = [[contact_Delegate alloc] initWithTask:task];
+    controller.newPersonViewDelegate = delegate;
+    UINavigationController *newNavigationController = [[UINavigationController alloc]
+                                                       initWithRootViewController:controller];
+    [[[ForgeApp sharedApp] viewController] presentModalViewController:newNavigationController animated:YES];
+
+    CFRelease(person);
+}
+
 @end

@@ -30,6 +30,14 @@ Contacts are represented by a simple JavaScript object which follows the [W3C Co
 !platforms: iOS, Android
 !param: error `function(content)` called with details of any error which may occur
 
+!method: forge.contact.add(contact, success, error)
+!param: contact `object` Contact object to add. Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`
+!param: success `function(contact)` callback to be invoked when no errors occur
+!description: Returns the contact if it was successfully added
+!platforms: iOS
+!param: error `function(content)` called with details of any error which may occur
+
+
 ##Contact object 
 
 When using ``selectAll``, the returned contacts list would look
@@ -59,7 +67,7 @@ Below is an example of a contact object returned from ``select`` or
 	    "givenName": "Joe",
 	    "middleName": null,
 	    "honorificPrefix": "Mr",
-	    "honorificSuffic": null
+	    "honorificSuffix": null
 	  },
 	  "nickname": "Joe",
 	  "phoneNumbers": [

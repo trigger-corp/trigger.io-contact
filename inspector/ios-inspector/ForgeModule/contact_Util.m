@@ -10,6 +10,10 @@
 
 @implementation contact_Util
 
+
+/**
+ * Create a NSDictionary from an ABRecordRef
+ */
 + (NSDictionary*) dictFrom:(ABRecordRef)contact withFields:(NSArray *)fields {
     NSDictionary *data = [[NSMutableDictionary alloc] init];
     
@@ -264,6 +268,113 @@
 	}
 	
     return data;
+}
+
+
+/**
+ * Create an ABRecordRef from a NSDictionary
+ */
++ (ABRecordRef) personFrom:(NSDictionary *)contact {
+    ABRecordRef person = ABPersonCreate();
+    
+    // name
+    if ([contact objectForKey:@"name"]) {
+        NSDictionary *name = [contact objectForKey:@"name"];
+        ABRecordSetValue(person, kABPersonPrefixProperty, (__bridge CFStringRef) [name objectForKey:@"honorificPrefix"], NULL);
+        ABRecordSetValue(person, kABPersonFirstNameProperty, (__bridge CFStringRef) [name objectForKey:@"givenName"], NULL);
+        ABRecordSetValue(person, kABPersonMiddleNameProperty, (__bridge CFStringRef) [name objectForKey:@"middleName"], NULL);
+        ABRecordSetValue(person, kABPersonLastNameProperty, (__bridge CFStringRef) [name objectForKey:@"familyName"], NULL);
+        ABRecordSetValue(person, kABPersonSuffixProperty, (__bridge CFStringRef) [name objectForKey:@"honorificSuffix"], NULL);
+    }
+    ABRecordSetValue(person, kABPersonNicknameProperty, (__bridge CFStringRef) [contact objectForKey:@"nickname"], NULL);
+    
+    // phoneNumbers
+    if ([contact objectForKey:@"phoneNumbers"]) {
+        ABMutableMultiValueRef phoneNumbersMV = ABMultiValueCreateMutable(kABMultiStringPropertyType);
+        NSArray *phoneNumbers = [contact objectForKey:@"phoneNumbers"];
+        for (int i = 0; i < [phoneNumbers count]; i++) {
+            NSDictionary *phoneNumber = [phoneNumbers objectAtIndex:i];
+            NSString *type = [phoneNumber objectForKey:@"type"];
+            if (type == NULL) continue;
+            if ([type isEqualToString:@"mobile" ]) {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneMobileLabel, NULL);
+            } else if ([type isEqualToString:@"iPhone" ]) {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneIPhoneLabel, NULL);
+            } else if ([type isEqualToString:@"main" ]) {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneMainLabel, NULL);
+            } else if ([type isEqualToString:@"home_fax" ]) {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneHomeFAXLabel, NULL);
+            } else if ([type isEqualToString:@"work_fax" ]) {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneWorkFAXLabel, NULL);
+            } else if ([type isEqualToString:@"pager" ]) {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhonePagerLabel, NULL);
+            } else if ([type isEqualToString:@"work" ]) {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABWorkLabel, NULL);
+            } else if ([type isEqualToString:@"home" ]) {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABHomeLabel, NULL);
+            } else {
+                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABOtherLabel, NULL);
+            }
+        }
+        ABRecordSetValue(person, kABPersonPhoneProperty, phoneNumbersMV, nil);
+        CFRelease(phoneNumbersMV);
+    }
+    
+    // emails
+    if ([contact objectForKey:@"emails"]) {
+        ABMutableMultiValueRef emailsMV = ABMultiValueCreateMutable(kABMultiStringPropertyType);
+        NSArray *emails = [contact objectForKey:@"emails"];
+        for (int i = 0; i < [emails count]; i++) {
+            NSDictionary *email = [emails objectAtIndex:i];
+            NSString *type = [email objectForKey:@"type"];
+            if (type == NULL) continue;
+            if ([type isEqualToString:@"work" ]) {
+                ABMultiValueAddValueAndLabel(emailsMV, (__bridge CFStringRef) [email objectForKey:@"value"], kABWorkLabel, NULL);
+            } else if ([type isEqualToString:@"home" ]) {
+                ABMultiValueAddValueAndLabel(emailsMV, (__bridge CFStringRef) [email objectForKey:@"value"], kABHomeLabel, NULL);
+            } else {
+                ABMultiValueAddValueAndLabel(emailsMV, (__bridge CFStringRef) [email objectForKey:@"value"], kABOtherLabel, NULL);
+            }
+        }
+        ABRecordSetValue(person, kABPersonEmailProperty, emailsMV, nil);
+        CFRelease(emailsMV);
+    }
+    
+    // addresses
+    if ([contact objectForKey:@"addresses"]) {
+        ABMutableMultiValueRef addressesMV = ABMultiValueCreateMutable(kABMultiDictionaryPropertyType);
+        NSArray *addresses = [contact objectForKey:@"addresses"];
+        for (int i = 0; i < [addresses count]; i++) {
+            NSDictionary *address = [addresses objectAtIndex:i];
+            NSMutableDictionary *dest = [[NSMutableDictionary alloc] init];
+            NSString *type = [address objectForKey:@"type"];
+            if (type == NULL) continue;
+
+            dest[(NSString*)kABPersonAddressStreetKey] = [address objectForKey:@"streetAddress"];
+            dest[(NSString*)kABPersonAddressCityKey] = [address objectForKey:@"locality"];
+            dest[(NSString*)kABPersonAddressStateKey] = [address objectForKey:@"region"];
+            dest[(NSString*)kABPersonAddressZIPKey] = [address objectForKey:@"postalCode"];
+            dest[(NSString*)kABPersonAddressCountryKey] = [address objectForKey:@"country"];
+            
+            if ([type isEqualToString:@"work" ]) {
+                ABMultiValueAddValueAndLabel(addressesMV, (__bridge CFDictionaryRef) dest, kABWorkLabel, NULL);
+            } else if ([type isEqualToString:@"home" ]) {
+                ABMultiValueAddValueAndLabel(addressesMV, (__bridge CFDictionaryRef) dest, kABHomeLabel, NULL);
+            } else {
+                ABMultiValueAddValueAndLabel(addressesMV, (__bridge CFDictionaryRef) dest, kABOtherLabel, NULL);
+            }
+        }
+        ABRecordSetValue(person, kABPersonAddressProperty, addressesMV, nil);
+        CFRelease(addressesMV);
+    }
+    
+    // birthday
+    // TODO ABRecordSetValue(person, kABPersonBirthdayProperty, (__bridge CFDateRef) [contact objectForKey:@"birthday"], NULL);
+    
+    // note
+    ABRecordSetValue(person, kABPersonNoteProperty, (__bridge CFStringRef) [contact objectForKey:@"note"], NULL);
+
+    return person;
 }
 
 @end

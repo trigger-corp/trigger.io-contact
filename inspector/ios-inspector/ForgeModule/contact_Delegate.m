@@ -11,6 +11,7 @@
 
 @implementation contact_Delegate
 
+
 - (contact_Delegate*) initWithTask:(ForgeTask *)initTask {
 	if (self = [super init]) {
 		task = initTask;
@@ -54,6 +55,22 @@
         [task success:data];
         me = nil;
     }];
+}
+
+- (void)newPersonViewController:(ABNewPersonViewController *)unknownCardViewController didCompleteWithNewPerson:(ABRecordRef)person {
+    if (person == NULL) {
+        [[[ForgeApp sharedApp] viewController] dismissViewControllerHelper:^{
+            [task error:@"Contact addition cancelled" type:@"EXPECTED_FAILURE" subtype:nil];
+            me = nil;
+        }];
+        
+    } else {
+        NSDictionary *data = [contact_Util dictFrom:person withFields:@[@"name", @"nickname", @"phoneNumbers", @"emails", @"addresses", @"birthday", @"note"]];
+        [[[ForgeApp sharedApp] viewController] dismissViewControllerHelper:^{
+            [task success:data];
+            me = nil;
+        }];
+    }
 }
 
 
