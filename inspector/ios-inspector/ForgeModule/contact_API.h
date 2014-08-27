@@ -13,6 +13,6 @@
 
 + (void)select:(ForgeTask*)task;
 + (void)selectById:(ForgeTask*)task id:(NSString *)contactId;
-+ (void)selectAll:(ForgeTask*)task;
++ (void)selectAll:(ForgeTask*)task fields:(NSArray*) fields;
 
 @end
