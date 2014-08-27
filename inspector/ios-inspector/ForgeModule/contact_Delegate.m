@@ -45,5 +45,16 @@
 	}];
 }
 
+// On iOS 8.0, a selected person is returned with this method.
+- (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person
+{
+    NSDictionary *data = [contact_Util dictFrom:person withFields:@[@"name", @"nickname", @"phoneNumbers", @"emails", @"addresses", @"ims", @"organizations", @"birthday", @"note", @"photos", @"categories", @"urls"]];
+    
+    [[[ForgeApp sharedApp] viewController] dismissViewControllerHelper:^{
+        [task success:data];
+        me = nil;
+    }];
+}
+
 
 @end
