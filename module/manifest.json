@@ -1,5 +1,5 @@
 {
-    "changes": "* Support arm64 devices running iOS 8\n* Implement new iOS8 didSelectPerson selector", 
+    "changes": "* New method: `add`\n* Support arm64 devices running iOS 8\n* Implement new iOS8 didSelectPerson selector",
     "description": "Access contacts saved by the user on their device.\n\nThe contact module allows you to programmatically, or via a user prompt, load contact information from the devices contact list.", 
     "min_platform_version": "v2.1.0", 
     "namespace": "contact", 

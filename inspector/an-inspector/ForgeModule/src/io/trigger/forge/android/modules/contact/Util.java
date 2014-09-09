@@ -1,11 +1,14 @@
 package io.trigger.forge.android.modules.contact;
 
 import io.trigger.forge.android.core.ForgeApp;
+import io.trigger.forge.android.core.ForgeLog;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
+import android.content.ContentProviderOperation;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.BaseTypes;
@@ -33,15 +36,15 @@ class Util {
 		allFields.add(new JsonPrimitive("organizations"));
 		allFields.add(new JsonPrimitive("photos"));
 	}
-	
+
 	/**
 	* Returns an array of Strings which can be used to limit the columns returned by the data provider.
-	* 
+	*
 	* @param fields the high-level field names we need data for: possible values are in the allFields array.
 	*/
 	private static String[] getProjection(final JsonArray fields) {
 		Vector<String> projection = new Vector<String>();
-		
+
 		// Columns which must be included for internal uses
 		projection.add(ContactsContract.Contacts._ID);
 		projection.add(ContactsContract.Data.CONTACT_ID);
@@ -100,18 +103,18 @@ class Util {
 				projection.add(ContactsContract.CommonDataKinds.Website.LABEL);
 			}
 		}
-		
+
 		return projection.toArray(new String[projection.size()]);
 	}
-	
+
 	/**
 	* Return the mime-types which correspond to the fields passed in as an argument.
-	* 
+	*
 	* @param fields the high-level field names to return mime-types for; valid values are in allFields.
 	*/
 	private static String[] getMimeTypes(final JsonArray fields) {
 		Vector<String> mimeTypes = new Vector<String>();
-		
+
 		for (JsonElement jsonField : fields) {
 			String field = jsonField.getAsString();
 			if (field.equals("name")) {
@@ -138,27 +141,27 @@ class Util {
 				mimeTypes.add(ContactsContract.CommonDataKinds.Website.CONTENT_ITEM_TYPE);
 			}
 		}
-		
+
 		return mimeTypes.toArray(new String[mimeTypes.size()]);
 	}
 
 	/**
 	 * Return the column index, given its name
-	 * 
+	 *
 	 * @param name column name
 	 * @param columnMemo mapping of name to index
 	 * @return integer column index
 	 */
 	private static int getColumnIndex(String name, Map<String, Integer> columnMemo) {
-		return columnMemo.get(name); 
+		return columnMemo.get(name);
 	}
-	
+
 	/**
 	 * Return the value of the named column, at the current row
 	 * @param cursor database cursor into provider results
 	 * @param name
 	 * @param columnMemo
-	 * @return specified value, or an empty string if not found 
+	 * @return specified value, or an empty string if not found
 	 */
 	private static String getValue(Cursor cursor, String name, Map<String, Integer> columnMemo) {
 		try {
@@ -167,22 +170,22 @@ class Util {
 			return "";
 		}
 	}
-	
+
 	private static int getValueOrMinusOne(Cursor cursor, String name, Map<String, Integer> columnMemo) {
 		String value = getValue(cursor, name, columnMemo);
 		if ("" == value) {
 			return -1;
 		} else {
-			return Integer.parseInt(value); 
+			return Integer.parseInt(value);
 		}
 	}
-	
+
 	/**
 	 * For a mapping of contactId to Json contact objects, fill out each contact with the projection of fields
 	 * (or all fields, if fields is null)
 	 * @param contacts mapping of contactId to JsonObject contact
 	 * @param fields array of high-level fields, or null for everything
-	 * 
+	 *
 	 * NB contacts is changed in-place
 	 */
 	public static void populateContacts(final Map<String, JsonObject> contacts, JsonArray fields) {
@@ -190,14 +193,14 @@ class Util {
 			fields = allFields;
 		}
 		final String[] projection = getProjection(fields);
-		
+
 		Joiner joiner = Joiner.on("','").skipNulls();
 		String contactIds = "'"+joiner.join(contacts.keySet())+"'";
-		
+
 		final String[] mimeTypes = getMimeTypes(fields);
-		
+
 		StringBuilder selection = new StringBuilder();
-		
+
 		selection.append(ContactsContract.Data.CONTACT_ID + " in ("+contactIds+")");
 		if (mimeTypes.length > 0) {
 			selection.append(" AND (");
@@ -206,13 +209,13 @@ class Util {
 			}
 			selection.append(ContactsContract.Data.MIMETYPE + " = ?)");
 		}
-		
+
 		Cursor cursor = ForgeApp.getActivity().getContentResolver().query(
 				ContactsContract.Data.CONTENT_URI,
 				projection,
 				selection.toString(),
 				mimeTypes, null);
-		
+
 		try {
 			if (!cursor.moveToFirst()) {
 				return;
@@ -227,10 +230,10 @@ class Util {
 			cursor.close();
 		}
 	}
-	
+
 	/**
 	 * Fill out a single contact with data from the columns specified by the fields projection
-	 *  
+	 *
 	 * @param contactId
 	 * @param fields high-level field names to limit the columns inspected, or null for everything
 	 * @return the contact object changed in-place
@@ -241,9 +244,9 @@ class Util {
 		}
 		final String[] projection = getProjection(fields);
 		final String[] mimeTypes = getMimeTypes(fields);
-		
+
 		StringBuilder selection = new StringBuilder();
-		
+
 		selection.append(ContactsContract.Data.CONTACT_ID + " = '"+contactId+"'");
 		if (mimeTypes.length > 0) {
 			selection.append(" AND (");
@@ -252,13 +255,13 @@ class Util {
 			}
 			selection.append(ContactsContract.Data.MIMETYPE + " = ?)");
 		}
-		
+
 		Cursor cursor = ForgeApp.getActivity().getContentResolver().query(
 				ContactsContract.Data.CONTENT_URI,
 				projection,
 				selection.toString(),
 				mimeTypes, null);
-		
+
 		try {
 			JsonObject contact = new JsonObject();
 			if (!cursor.moveToFirst()) {
@@ -272,19 +275,19 @@ class Util {
 			cursor.close();
 		}
 	}
-	
+
 	// See contactIdToJsonObject
 	public static JsonObject contactToJSON(Cursor cursor, JsonObject contact, String[] projection) {
 		Map<String, Integer> columnMemo = new Hashtable<String, Integer>();
 		for (int idx=0; idx<projection.length; idx++) {
 			columnMemo.put(projection[idx], idx);
 		}
-		
+
 		contact.addProperty("displayName", Util.getValue(cursor, ContactsContract.Data.DISPLAY_NAME, columnMemo));
 		contact.addProperty("id", Util.getValue(cursor, ContactsContract.Contacts._ID, columnMemo));
-		
+
 		String mimeType = getValue(cursor, ContactsContract.Data.MIMETYPE, columnMemo);
-		
+
 		if (mimeType.equals(ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE)) {
 			contact.addProperty("nickname", getValue(cursor, ContactsContract.CommonDataKinds.Nickname.NAME, columnMemo));
 		} else if (mimeType.equals(ContactsContract.CommonDataKinds.Note.CONTENT_ITEM_TYPE)) {
@@ -419,7 +422,7 @@ class Util {
 			JsonArray addresses;
 			address.addProperty("formatted", getValue(cursor, ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS, columnMemo));
 			address.addProperty("pref", false);
-			
+
 			switch (getValueOrMinusOne(cursor, ContactsContract.CommonDataKinds.StructuredPostal.TYPE, columnMemo)) {
 			case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME:
 				address.addProperty("type", "home");
@@ -437,13 +440,13 @@ class Util {
 				address.add("type", JsonNull.INSTANCE);
 				break;
 			}
-			
+
 			address.addProperty("country", getValue(cursor, ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY, columnMemo));
 			address.addProperty("locality", getValue(cursor, ContactsContract.CommonDataKinds.StructuredPostal.CITY, columnMemo));
 			address.addProperty("postalCode", getValue(cursor, ContactsContract.CommonDataKinds.StructuredPostal.POSTCODE, columnMemo));
 			address.addProperty("region", getValue(cursor, ContactsContract.CommonDataKinds.StructuredPostal.REGION, columnMemo));
 			address.addProperty("streetAddress", getValue(cursor, ContactsContract.CommonDataKinds.StructuredPostal.STREET, columnMemo));
-			
+
 			if (contact.has("addresses")) {
 				addresses = contact.getAsJsonArray("addresses");
 			} else {
@@ -456,7 +459,7 @@ class Util {
 			JsonArray ims;
 			im.addProperty("value", getValue(cursor, ContactsContract.CommonDataKinds.Im.DATA, columnMemo));
 			im.addProperty("pref", false);
-			
+
 			switch (getValueOrMinusOne(cursor, ContactsContract.CommonDataKinds.Im.PROTOCOL, columnMemo)) {
 			case ContactsContract.CommonDataKinds.Im.PROTOCOL_AIM:
 				im.addProperty("type", "aim");
@@ -492,7 +495,7 @@ class Util {
 				im.add("type", JsonNull.INSTANCE);
 				break;
 			}
-			
+
 			if (contact.has("ims")) {
 				ims = contact.getAsJsonArray("ims");
 			} else {
@@ -534,7 +537,7 @@ class Util {
 				url.add("type", JsonNull.INSTANCE);
 				break;
 			}
-			
+
 			if (contact.has("urls")) {
 				urls = contact.getAsJsonArray("urls");
 			} else {
@@ -549,7 +552,7 @@ class Util {
 			organization.addProperty("department", getValue(cursor, ContactsContract.CommonDataKinds.Organization.DEPARTMENT, columnMemo));
 			organization.addProperty("title", getValue(cursor, ContactsContract.CommonDataKinds.Organization.TITLE, columnMemo));
 			organization.addProperty("pref", false);
-			
+
 			switch (getValueOrMinusOne(cursor, ContactsContract.CommonDataKinds.Organization.TYPE, columnMemo)) {
 			case ContactsContract.CommonDataKinds.Organization.TYPE_WORK:
 				organization.addProperty("type", "work");
@@ -564,7 +567,7 @@ class Util {
 				organization.add("type", JsonNull.INSTANCE);
 				break;
 			}
-			
+
 			if (contact.has("organizations")) {
 				organizations = contact.getAsJsonArray("organizations");
 			} else {
@@ -592,5 +595,174 @@ class Util {
 			contact.add("photos", photos);
 		}
 		return contact;
+	}
+
+
+
+	/**
+	 * Fill out a single contact with data from the provided JsonObject
+	 *
+	 * @param contact object as JsonObject
+	 * @return the contact object
+	 */
+	public static ArrayList<ContentProviderOperation> contactFromJSON(JsonObject contact) {
+		ArrayList<ContentProviderOperation> person = new ArrayList<ContentProviderOperation>();
+
+		person.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+				.withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+				.withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+				.build());
+
+		// name
+		if (Util.IsValid(contact, "name")) {
+			JsonObject name = contact.getAsJsonObject("name");
+			Util.addName(person, ContactsContract.CommonDataKinds.StructuredName.PREFIX, name, "honorificPrefix");
+			Util.addName(person, ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, name, "givenName");
+			Util.addName(person, ContactsContract.CommonDataKinds.StructuredName.MIDDLE_NAME, name, "middleName");
+			Util.addName(person, ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME, name, "familyName");
+			Util.addName(person, ContactsContract.CommonDataKinds.StructuredName.SUFFIX, name, "honorificSuffix");
+		}
+
+		// nickname
+		if (Util.IsValid(contact, "nickname")) {
+			person.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+					.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+					.withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE)
+					.withValue(ContactsContract.CommonDataKinds.Nickname.NAME, contact.get("nickname").getAsString())
+					.build());
+		}
+
+		// phone numbers
+		if (Util.IsValid(contact, "phoneNumbers")) {
+			JsonArray phoneNumbers = contact.getAsJsonArray("phoneNumbers");
+			for (JsonElement element : phoneNumbers) {
+				JsonObject phoneNumber = element.getAsJsonObject();
+				if (Util.IsValid(phoneNumber, "type") && Util.IsValid(phoneNumber, "value")) {
+					Util.addPhoneNumber(person, phoneNumber.get("type").getAsString(), phoneNumber.get("value").getAsString());
+				}
+			}
+		}
+
+		// emails
+		if (Util.IsValid(contact, "emails")) {
+			JsonArray emails = contact.getAsJsonArray("emails");
+			for (JsonElement element : emails) {
+				JsonObject email = element.getAsJsonObject();
+				if (Util.IsValid(email, "type") && Util.IsValid(email, "value")) {
+					Util.addEmail(person, email.get("type").getAsString(), email.get("value").getAsString());
+				}
+			}
+		}
+
+		// addresses
+		if (Util.IsValid(contact, "addresses")) {
+			JsonArray addresses = contact.getAsJsonArray("addresses");
+			for (JsonElement element : addresses) {
+				JsonObject address = element.getAsJsonObject();
+				if (Util.IsValid(address, "type")) {
+					Util.addAddress(person, address);
+				}
+			}
+		}
+
+		// birthday
+		// TODO
+
+		// note
+		if (Util.IsValid(contact, "note")) {
+			person.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+					.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+					.withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Note.CONTENT_ITEM_TYPE)
+					.withValue(ContactsContract.CommonDataKinds.Note.NOTE, contact.get("note").getAsString())
+					.build());
+		}
+
+		return person;
+	}
+
+	/** - Add contact helpers ---------------------------------------------- */
+
+	private static void addName(ArrayList<ContentProviderOperation> person, String key, JsonObject name, String value) {
+		if (!Util.IsValid(name,  value)) {
+			return;
+		}
+		person.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+				.withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+				.withValue(key, name.get(value).getAsString())
+				.build());
+	}
+
+	private static void addPhoneNumber(ArrayList<ContentProviderOperation> person, String type, String value) {
+		int typeMobile = ContactsContract.CommonDataKinds.Phone.TYPE_OTHER;
+		if (type == "mobile") {
+			typeMobile = ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
+		} else if (type == "main") {
+			typeMobile = ContactsContract.CommonDataKinds.Phone.TYPE_MAIN;
+		} else if (type == "home_fax") {
+			typeMobile = ContactsContract.CommonDataKinds.Phone.TYPE_FAX_HOME;
+		} else if (type == "work_fax") {
+			typeMobile = ContactsContract.CommonDataKinds.Phone.TYPE_FAX_WORK;
+		} else if (type == "pager") {
+			typeMobile = ContactsContract.CommonDataKinds.Phone.TYPE_PAGER;
+		} else if (type == "work") {
+			typeMobile = ContactsContract.CommonDataKinds.Phone.TYPE_WORK;
+		} else if (type == "home") {
+			typeMobile = ContactsContract.CommonDataKinds.Phone.TYPE_HOME;
+		}
+		person.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+				.withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+				.withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, value)
+				.withValue(ContactsContract.CommonDataKinds.Phone.TYPE, typeMobile)
+				.build());
+	}
+
+	private static void addEmail(ArrayList<ContentProviderOperation> person, String type, String value) {
+		int typeEmail = ContactsContract.CommonDataKinds.Email.TYPE_OTHER;
+		if (type == "work") {
+			typeEmail = ContactsContract.CommonDataKinds.Email.TYPE_WORK;
+		} else if (type == "home") {
+			typeEmail = ContactsContract.CommonDataKinds.Email.TYPE_HOME;
+		}
+		person.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+				.withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+				.withValue(ContactsContract.CommonDataKinds.Email.DATA, value)
+				.withValue(ContactsContract.CommonDataKinds.Email.TYPE, typeEmail)
+				.build());
+	}
+
+	private static void addAddress(ArrayList<ContentProviderOperation> person, JsonObject address) {
+		if (!Util.IsValid(address, "type")) {
+			ForgeLog.d("Invalid address: " + address);
+			return;
+		}
+		String type = address.get("type").getAsString();
+		int typeAddress = ContactsContract.CommonDataKinds.StructuredPostal.TYPE_OTHER;
+		if (type == "work") {
+			typeAddress = ContactsContract.CommonDataKinds.StructuredPostal.TYPE_WORK;
+		} else if (type == "home") {
+			typeAddress = ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME;
+		}
+		String streetAddress = Util.IsValid(address,"streetAddress") ? address.get("streetAddress").getAsString() : "";
+		String locality = Util.IsValid(address,"locality") ? address.get("locality").getAsString() : "";
+		String region = Util.IsValid(address,"region") ? address.get("region").getAsString() : "";
+		String postalCode = Util.IsValid(address,"postalCode") ? address.get("postalCode").getAsString() : "";
+		String country = Util.IsValid(address, "country") ? address.get("country").getAsString() : "";
+		person.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+				.withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+				.withValue(ContactsContract.CommonDataKinds.StructuredPostal.STREET, streetAddress)
+				.withValue(ContactsContract.CommonDataKinds.StructuredPostal.CITY, locality)
+				.withValue(ContactsContract.CommonDataKinds.StructuredPostal.REGION, region)
+				.withValue(ContactsContract.CommonDataKinds.StructuredPostal.POSTCODE, postalCode)
+				.withValue(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY, country)
+				.withValue(ContactsContract.CommonDataKinds.StructuredPostal.TYPE, typeAddress)
+				.build());
+	}
+
+	private static boolean IsValid(JsonObject object, String key) {
+		return object.has(key) && object.get(key) != JsonNull.INSTANCE;
 	}
 }

@@ -114,7 +114,7 @@ if (forge.is.mobile()) {
 				"name": {
 					"familyName": "Bloggs",
 					"givenName": "Joe",
-					"middleName": null,
+					// "middleName": null,
 					"honorificPrefix": "Mr",
 					"honorificSuffix": null
 				},
@@ -123,18 +123,35 @@ if (forge.is.mobile()) {
 					"value": "+447554639203",
 					"type": "work"
 				}, {
+					"value": null,
+					"type": "home"
+				}, {
+					"type": "work"
+				}, {
+					"value": "+27824485158"
+				}, {
 					"value": "+27824485158",
-					"type": "iPhone"
+					"type": null
 				} ],
 				"emails": [ {
 					"value": "joe-bloggs@trigger.io",
 					"type": "work"
+				}, {
+					"value": null,
+					"type": "work"
+				}, {
+					"type": "work"
+				}, {
+					"value": "joe-bloggs@trigger.io",
+				}, {
+					"value": "joe-bloggs@trigger.io",
+					"type": null
 				} ],
 				"addresses": [ {
 					"country": "United Kingdom",
 					"locality": "London",
-					"postalCode": "N1 6DL",
-					"region": "London",
+					"postalCode": null,
+					//"region": "London",
 					"streetAddress": "1-11 Baches Street",
 					"type": "work"
 				} ],
@@ -146,7 +163,7 @@ if (forge.is.mobile()) {
 					Yes: function () {
 						ok(true, "User claims success");
 						start();
-					}, 
+					},
 					No: function () {
 						ok(false, "User claims failure");
 						start();
@@ -159,18 +176,20 @@ if (forge.is.mobile()) {
 		};
 		askQuestion("When prompted add a contact", { Yes: runTest, No: runTest });
 	});
-
-	asyncTest("Add contact (cancel)", 1, function() {
-		var runTest = function () {
-			forge.contact.add({}, function () {
-				ok(false, "Success callback fired");
-				start();
-			}, function (e) {
-				ok(true, "Error callback fired: "+e.message);
-				start();
-			});
-		};
-		askQuestion("When prompted cancel adding a contact", { Yes: runTest, No: runTest });
-	});
+	
+	if (forge.is.ios()) {
+		asyncTest("Add contact (cancel)", 1, function() {
+			var runTest = function () {
+				forge.contact.add({}, function () {
+					ok(false, "Success callback fired");
+					start();
+				}, function (e) {
+					ok(true, "Error callback fired: "+e.message);
+					start();
+				});
+			};
+			askQuestion("When prompted cancel adding a contact", { Yes: runTest, No: runTest });
+		});
+	}
 
 }
