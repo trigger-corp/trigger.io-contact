@@ -295,8 +295,9 @@
         for (int i = 0; i < [phoneNumbers count]; i++) {
             NSDictionary *phoneNumber = [phoneNumbers objectAtIndex:i];
             NSString *type = [phoneNumber objectForKey:@"type"];
-            if (type == NULL) continue;
-            if ([type isEqualToString:@"mobile" ]) {
+            if (![type isKindOfClass:[NSString class]] ||
+                ![[phoneNumber objectForKey:@"value"] isKindOfClass:[NSString class]]) continue;
+            if ([type isEqualToString:@"mobile"] && [phoneNumber objectForKey:@"value"]) {
                 ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneMobileLabel, NULL);
             } else if ([type isEqualToString:@"iPhone" ]) {
                 ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneIPhoneLabel, NULL);
@@ -327,7 +328,8 @@
         for (int i = 0; i < [emails count]; i++) {
             NSDictionary *email = [emails objectAtIndex:i];
             NSString *type = [email objectForKey:@"type"];
-            if (type == NULL) continue;
+            if (![type isKindOfClass:[NSString class]] ||
+                ![[email objectForKey:@"value"] isKindOfClass:[NSString class]]) continue;
             if ([type isEqualToString:@"work" ]) {
                 ABMultiValueAddValueAndLabel(emailsMV, (__bridge CFStringRef) [email objectForKey:@"value"], kABWorkLabel, NULL);
             } else if ([type isEqualToString:@"home" ]) {
@@ -348,13 +350,18 @@
             NSDictionary *address = [addresses objectAtIndex:i];
             NSMutableDictionary *dest = [[NSMutableDictionary alloc] init];
             NSString *type = [address objectForKey:@"type"];
-            if (type == NULL) continue;
+            if (![type isKindOfClass:[NSString class]]) continue;
 
-            dest[(NSString*)kABPersonAddressStreetKey] = [address objectForKey:@"streetAddress"];
-            dest[(NSString*)kABPersonAddressCityKey] = [address objectForKey:@"locality"];
-            dest[(NSString*)kABPersonAddressStateKey] = [address objectForKey:@"region"];
-            dest[(NSString*)kABPersonAddressZIPKey] = [address objectForKey:@"postalCode"];
-            dest[(NSString*)kABPersonAddressCountryKey] = [address objectForKey:@"country"];
+            if ([[address objectForKey:@"streetAddress"] isKindOfClass:[NSString class]])
+                dest[(NSString*)kABPersonAddressStreetKey] = [address objectForKey:@"streetAddress"];
+            if ([[address objectForKey:@"locality"] isKindOfClass:[NSString class]])
+                dest[(NSString*)kABPersonAddressCityKey] = [address objectForKey:@"locality"];
+            if ([[address objectForKey:@"region"] isKindOfClass:[NSString class]])
+                dest[(NSString*)kABPersonAddressStateKey] = [address objectForKey:@"region"];
+            if ([[address objectForKey:@"postalCode"] isKindOfClass:[NSString class]])
+                dest[(NSString*)kABPersonAddressZIPKey] = [address objectForKey:@"postalCode"];
+            if ([[address objectForKey:@"country"] isKindOfClass:[NSString class]])
+                dest[(NSString*)kABPersonAddressCountryKey] = [address objectForKey:@"country"];
             
             if ([type isEqualToString:@"work" ]) {
                 ABMultiValueAddValueAndLabel(addressesMV, (__bridge CFDictionaryRef) dest, kABWorkLabel, NULL);

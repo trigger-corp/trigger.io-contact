@@ -64,7 +64,6 @@
         });
         
         dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-        dispatch_release(sema);
     }
     else { // we're on iOS 5 or older
         accessGranted = YES;
@@ -85,7 +84,7 @@
     controller.newPersonViewDelegate = delegate;
     UINavigationController *newNavigationController = [[UINavigationController alloc]
                                                        initWithRootViewController:controller];
-    [[[ForgeApp sharedApp] viewController] presentModalViewController:newNavigationController animated:YES];
+    [[[ForgeApp sharedApp] viewController] presentViewController:newNavigationController animated:YES completion:nil];
 
     CFRelease(person);
 }
