@@ -12,6 +12,7 @@
 @interface contact_Util : NSObject
 
 + (NSDictionary*) dictFrom:(ABRecordRef)contact withFields:(NSArray*)fields;
-+ (ABRecordRef) personFrom:(NSDictionary *)contact;
++ (ABRecordRef)contactCreateFrom:(NSDictionary *)dict
+                       error_out:(CFErrorRef *)error_out;
 
 @end

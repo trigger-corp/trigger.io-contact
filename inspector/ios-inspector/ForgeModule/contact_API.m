@@ -53,17 +53,19 @@
 }
 
 + (void)insert:(ForgeTask*)task contact:(NSDictionary *)contactDict {
-    NSLog(@"Called add: %@", contactDict);
+    NSLog(@"Called insert: %@", contactDict);
     
-    ABRecordRef newPerson = [contact_Util personFrom:contactDict];
+    CFErrorRef error;
+    ABRecordRef newPerson =
+        [contact_Util contactCreateFrom:contactDict error_out:&error];
 
     if (newPerson == NULL) {
-        [task error:@"Not a valid contact" type:@"UNEXPECTED_FAILURE" subtype:nil];
+        NSLog(@"insert error! %@", error);
+        [task error:@"Couldn't create new contact" type:@"UNEXPECTED_FAILURE" subtype:nil];
         return;
     }
     
     ABAddressBookRef addressBook = ABAddressBookCreate();
-    CFErrorRef error;
 
     if (![self addressBookAccessGranted:addressBook]) {
         NSLog(@"error! no access");
@@ -107,22 +109,26 @@
     return accessGranted;
 }
 
-+ (void)add:(ForgeTask*)task contact:(NSDictionary*) contact {
-    ABRecordRef person = [contact_Util personFrom:contact];
-    if (person == NULL) {
-        [task error:@"Not a valid contact"];
++ (void)add:(ForgeTask*)task contact:(NSDictionary*)contactDict {
+    CFErrorRef error;
+    ABRecordRef newPerson =
+        [contact_Util contactCreateFrom:contactDict error_out:&error];
+    
+    if (newPerson == NULL) {
+        NSLog(@"add error! %@", error);
+        [task error:@"Couldn't create new contact" type:@"UNEXPECTED_FAILURE" subtype:nil];
         return;
     }
     
     ABNewPersonViewController *controller = [[ABNewPersonViewController alloc] init];
-    controller.displayedPerson = person;
+    controller.displayedPerson = newPerson;
     contact_Delegate *delegate = [[contact_Delegate alloc] initWithTask:task];
     controller.newPersonViewDelegate = delegate;
     UINavigationController *newNavigationController = [[UINavigationController alloc]
                                                        initWithRootViewController:controller];
     [[[ForgeApp sharedApp] viewController] presentViewController:newNavigationController animated:YES completion:nil];
 
-    CFRelease(person);
+    CFRelease(newPerson);
 }
 
 @end

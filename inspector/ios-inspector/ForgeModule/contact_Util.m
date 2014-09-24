@@ -81,116 +81,124 @@
 	if ([fields containsObject:@"urls"]) {
 		ABMultiValueRef urlMultiValue = ABRecordCopyValue(contact, kABPersonURLProperty);
 		
-		NSMutableArray *urls = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(urlMultiValue)];
+        if (urlMultiValue) {
+            NSMutableArray *urls = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(urlMultiValue)];
 		
-		for (int x = 0; x < ABMultiValueGetCount(urlMultiValue); x++) {
-			CFStringRef labelRef = ABMultiValueCopyLabelAtIndex(urlMultiValue, x);
-			NSString *label = (__bridge_transfer NSString *)labelRef;
+            for (int x = 0; x < ABMultiValueGetCount(urlMultiValue); x++) {
+                CFStringRef labelRef = ABMultiValueCopyLabelAtIndex(urlMultiValue, x);
+                NSString *label = (__bridge_transfer NSString *)labelRef;
 			
-			
-			// Specified label constants
-			// https://www.pivotaltracker.com/story/show/33995229
-			// http://www.iphonedevsdk.com/forum/iphone-sdk-development/97478-abpeoplepickernavigationcontroller-crash.html
-			// Exchange can return NULL for labelRef
-			if (labelRef != NULL) {
-				if (CFStringCompare(labelRef, kABPersonHomePageLabel, 0) == kCFCompareEqualTo) {
-					label = @"homepage";
-				} else if (CFStringCompare(labelRef, kABWorkLabel, 0) == kCFCompareEqualTo) {
-					label = @"work";
-				} else if (CFStringCompare(labelRef, kABHomeLabel, 0) == kCFCompareEqualTo) {
-					label = @"home";
-				} else if (CFStringCompare(labelRef, kABOtherLabel, 0) == kCFCompareEqualTo) {
-					label = @"other";
-				}
-			} else {
-				label = @"other";
-			}
-			
-			[urls addObject:[[NSDictionary alloc] initWithObjectsAndKeys:[[NSNumber alloc] initWithBool:NO], @"pref", (__bridge_transfer NSString *)ABMultiValueCopyValueAtIndex(urlMultiValue, x), @"value", label, @"type", nil]];
-		}
-		[data setValue:urls forKey:@"urls"];
-		CFRelease(urlMultiValue);
-	}
+                // Specified label constants
+                // https://www.pivotaltracker.com/story/show/33995229
+                // http://www.iphonedevsdk.com/forum/iphone-sdk-development/97478-abpeoplepickernavigationcontroller-crash.html
+
+                // Exchange can return NULL for labelRef
+                if (labelRef != NULL) {
+                    if (CFStringCompare(labelRef, kABPersonHomePageLabel, 0) == kCFCompareEqualTo) {
+                        label = @"homepage";
+                    } else if (CFStringCompare(labelRef, kABWorkLabel, 0) == kCFCompareEqualTo) {
+                        label = @"work";
+                    } else if (CFStringCompare(labelRef, kABHomeLabel, 0) == kCFCompareEqualTo) {
+                        label = @"home";
+                    } else if (CFStringCompare(labelRef, kABOtherLabel, 0) == kCFCompareEqualTo) {
+                        label = @"other";
+                    }
+                } else {
+                    label = @"other";
+                }
+                
+                [urls addObject:[[NSDictionary alloc] initWithObjectsAndKeys:[[NSNumber alloc] initWithBool:NO], @"pref", (__bridge_transfer NSString *)ABMultiValueCopyValueAtIndex(urlMultiValue, x), @"value", label, @"type", nil]];
+            }
+            [data setValue:urls forKey:@"urls"];
+            CFRelease(urlMultiValue);
+        }
+    }
     
     if ([fields containsObject:@"phoneNumbers"]) {
 		ABMultiValueRef phoneMultiValue = ABRecordCopyValue(contact, kABPersonPhoneProperty);
 		
-		NSMutableArray *phones = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(phoneMultiValue)];
-		
-		for (int x = 0; x < ABMultiValueGetCount(phoneMultiValue); x++) {
-			CFStringRef labelRef = ABMultiValueCopyLabelAtIndex(phoneMultiValue, x);
-			NSString *label = (__bridge_transfer NSString *)labelRef;
-			
-			// Specified label constants
-			if (labelRef != NULL) {
-				if (CFStringCompare(labelRef, kABPersonPhoneMobileLabel, 0) == kCFCompareEqualTo) {
-					label = @"mobile";
-				} else if (CFStringCompare(labelRef, kABPersonPhoneIPhoneLabel, 0) == kCFCompareEqualTo) {
-					label = @"iPhone";
-				} else if (CFStringCompare(labelRef, kABPersonPhoneMainLabel, 0) == kCFCompareEqualTo) {
-					label = @"main";
-				} else if (CFStringCompare(labelRef, kABPersonPhoneHomeFAXLabel, 0) == kCFCompareEqualTo) {
-					label = @"home_fax";
-				} else if (CFStringCompare(labelRef, kABPersonPhoneWorkFAXLabel, 0) == kCFCompareEqualTo) {
-					label = @"work_fax";
-				} else if (CFStringCompare(labelRef, kABPersonPhonePagerLabel, 0) == kCFCompareEqualTo) {
-					label = @"pager";
-				} else if (CFStringCompare(labelRef, kABWorkLabel, 0) == kCFCompareEqualTo) {
-					label = @"work";
-				} else if (CFStringCompare(labelRef, kABHomeLabel, 0) == kCFCompareEqualTo) {
-					label = @"home";
-				} else if (CFStringCompare(labelRef, kABOtherLabel, 0) == kCFCompareEqualTo) {
-					label = @"other";
-				}
-			} else {
-				label = @"other";
-			}
-			
-			[phones addObject:[[NSDictionary alloc] initWithObjectsAndKeys:[[NSNumber alloc] initWithBool:NO], @"pref", (__bridge_transfer NSString *)ABMultiValueCopyValueAtIndex(phoneMultiValue, x), @"value", label, @"type", nil]];
-		}
-		[data setValue:phones forKey:@"phoneNumbers"];
-		CFRelease(phoneMultiValue);
-	}
+        if (phoneMultiValue) {
+            NSMutableArray *phones = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(phoneMultiValue)];
+            
+            for (int x = 0; x < ABMultiValueGetCount(phoneMultiValue); x++) {
+                CFStringRef labelRef = ABMultiValueCopyLabelAtIndex(phoneMultiValue, x);
+                NSString *label = (__bridge_transfer NSString *)labelRef;
+                
+                // Specified label constants
+                if (labelRef != NULL) {
+                    if (CFStringCompare(labelRef, kABPersonPhoneMobileLabel, 0) == kCFCompareEqualTo) {
+                        label = @"mobile";
+                    } else if (CFStringCompare(labelRef, kABPersonPhoneIPhoneLabel, 0) == kCFCompareEqualTo) {
+                        label = @"iPhone";
+                    } else if (CFStringCompare(labelRef, kABPersonPhoneMainLabel, 0) == kCFCompareEqualTo) {
+                        label = @"main";
+                    } else if (CFStringCompare(labelRef, kABPersonPhoneHomeFAXLabel, 0) == kCFCompareEqualTo) {
+                        label = @"home_fax";
+                    } else if (CFStringCompare(labelRef, kABPersonPhoneWorkFAXLabel, 0) == kCFCompareEqualTo) {
+                        label = @"work_fax";
+                    } else if (CFStringCompare(labelRef, kABPersonPhonePagerLabel, 0) == kCFCompareEqualTo) {
+                        label = @"pager";
+                    } else if (CFStringCompare(labelRef, kABWorkLabel, 0) == kCFCompareEqualTo) {
+                        label = @"work";
+                    } else if (CFStringCompare(labelRef, kABHomeLabel, 0) == kCFCompareEqualTo) {
+                        label = @"home";
+                    } else if (CFStringCompare(labelRef, kABOtherLabel, 0) == kCFCompareEqualTo) {
+                        label = @"other";
+                    }
+                } else {
+                    label = @"other";
+                }
+                
+                [phones addObject:[[NSDictionary alloc] initWithObjectsAndKeys:[[NSNumber alloc] initWithBool:NO], @"pref", (__bridge_transfer NSString *)ABMultiValueCopyValueAtIndex(phoneMultiValue, x), @"value", label, @"type", nil]];
+            }
+            [data setValue:phones forKey:@"phoneNumbers"];
+            CFRelease(phoneMultiValue);
+        }
+    }
     
     if ([fields containsObject:@"emails"]) {
 		ABMultiValueRef emailMultiValue = ABRecordCopyValue(contact, kABPersonEmailProperty);
-		
-		NSMutableArray *emails = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(emailMultiValue)];
-		
-		for (int x = 0; x < ABMultiValueGetCount(emailMultiValue); x++) {
-			CFStringRef labelRef = ABMultiValueCopyLabelAtIndex(emailMultiValue, x);
-			NSString *label = (__bridge_transfer NSString *)labelRef;
-			
-			if (labelRef != NULL) {
-				if (CFStringCompare(labelRef, kABWorkLabel, 0) == kCFCompareEqualTo) {
-					label = @"work";
-				} else if (CFStringCompare(labelRef, kABHomeLabel, 0) == kCFCompareEqualTo) {
-					label = @"home";
-				} else if (CFStringCompare(labelRef, kABOtherLabel, 0) == kCFCompareEqualTo) {
-					label = @"other";
-				}
-			} else {
-				label = @"other";
-			}
-			
-			[emails addObject:[[NSDictionary alloc] initWithObjectsAndKeys:[[NSNumber alloc] initWithBool:NO], @"pref", (__bridge_transfer NSString *)ABMultiValueCopyValueAtIndex(emailMultiValue, x), @"value", label, @"type", nil]];
-		}
-		[data setValue:emails forKey:@"emails"];
-		CFRelease(emailMultiValue);
+	
+        if (emailMultiValue) {
+            NSMutableArray *emails = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(emailMultiValue)];
+            
+            for (int x = 0; x < ABMultiValueGetCount(emailMultiValue); x++) {
+                CFStringRef labelRef = ABMultiValueCopyLabelAtIndex(emailMultiValue, x);
+                NSString *label = (__bridge_transfer NSString *)labelRef;
+                
+                if (labelRef != NULL) {
+                    if (CFStringCompare(labelRef, kABWorkLabel, 0) == kCFCompareEqualTo) {
+                        label = @"work";
+                    } else if (CFStringCompare(labelRef, kABHomeLabel, 0) == kCFCompareEqualTo) {
+                        label = @"home";
+                    } else if (CFStringCompare(labelRef, kABOtherLabel, 0) == kCFCompareEqualTo) {
+                        label = @"other";
+                    }
+                } else {
+                    label = @"other";
+                }
+                
+                [emails addObject:[[NSDictionary alloc] initWithObjectsAndKeys:[[NSNumber alloc] initWithBool:NO], @"pref", (__bridge_transfer NSString *)ABMultiValueCopyValueAtIndex(emailMultiValue, x), @"value", label, @"type", nil]];
+            }
+            [data setValue:emails forKey:@"emails"];
+            CFRelease(emailMultiValue);
+        }
 	}
     
     if ([fields containsObject:@"ims"]) {
 		ABMultiValueRef imMultiValue = ABRecordCopyValue(contact, kABPersonInstantMessageProperty);
-		
-		NSMutableArray *ims = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(imMultiValue)];
-		
-		for (int x = 0; x < ABMultiValueGetCount(imMultiValue); x++) {
-			NSDictionary *dict = (__bridge_transfer NSDictionary *)ABMultiValueCopyValueAtIndex(imMultiValue, x);
-			
-			[ims addObject:[[NSDictionary alloc] initWithObjectsAndKeys:[[NSNumber alloc] initWithBool:NO], @"pref", [dict objectForKey:(__bridge_transfer NSString *)kABPersonInstantMessageUsernameKey], @"value", [dict objectForKey:(__bridge_transfer NSString *)kABPersonInstantMessageServiceKey], @"type", nil]];
-		}
-		[data setValue:ims forKey:@"ims"];
-		CFRelease(imMultiValue);
+
+        if (imMultiValue) {
+            NSMutableArray *ims = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(imMultiValue)];
+            
+            for (int x = 0; x < ABMultiValueGetCount(imMultiValue); x++) {
+                NSDictionary *dict = (__bridge_transfer NSDictionary *)ABMultiValueCopyValueAtIndex(imMultiValue, x);
+                
+                [ims addObject:[[NSDictionary alloc] initWithObjectsAndKeys:[[NSNumber alloc] initWithBool:NO], @"pref", [dict objectForKey:(__bridge_transfer NSString *)kABPersonInstantMessageUsernameKey], @"value", [dict objectForKey:(__bridge_transfer NSString *)kABPersonInstantMessageServiceKey], @"type", nil]];
+            }
+            [data setValue:ims forKey:@"ims"];
+            CFRelease(imMultiValue);
+        }
 	}
     
     if ([fields containsObject:@"organizations"]) {
@@ -211,177 +219,415 @@
     if ([fields containsObject:@"addresses"]) {
 		ABMultiValueRef addressMultiValue = ABRecordCopyValue(contact, kABPersonAddressProperty);
 		
-		NSMutableArray *addresses = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(addressMultiValue)];
-		
-		for (int x = 0; x < ABMultiValueGetCount(addressMultiValue); x++) {
-			CFStringRef labelRef = ABMultiValueCopyLabelAtIndex(addressMultiValue, x);
-			NSString *label = (__bridge_transfer NSString *)labelRef;
-			
-			if (labelRef != NULL) {
-				if (CFStringCompare(labelRef, kABWorkLabel, 0) == kCFCompareEqualTo) {
-					label = @"work";
-				} else if (CFStringCompare(labelRef, kABHomeLabel, 0) == kCFCompareEqualTo) {
-					label = @"home";
-				} else if (CFStringCompare(labelRef, kABOtherLabel, 0) == kCFCompareEqualTo) {
-					label = @"other";
-				}
-			} else {
-				label = @"other";
-			}
-			
-			NSDictionary *dict = (__bridge_transfer NSDictionary *)ABMultiValueCopyValueAtIndex(addressMultiValue, x);
-			
-			NSMutableDictionary *address = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-											[[NSNumber alloc] initWithBool:NO], @"pref",
-											[dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressStreetKey], @"streetAddress",
-											[dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressCityKey], @"locality",
-											[dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressStateKey], @"region",
-											[dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressZIPKey], @"postalCode",
-											[dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressCountryKey], @"country",
-											label, @"type",
-											nil];
-			
-			NSString *formatted = @"";
-			if ([address objectForKey:@"streetAddress"]) {
-				formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"streetAddress"]];
-			}
-			if ([address objectForKey:@"locality"]) {
-				formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"locality"]];
-			}
-			if ([address objectForKey:@"region"]) {
-				formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"region"]];
-			}
-			if ([address objectForKey:@"postalCode"]) {
-				formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"postalCode"]];
-			}
-			if ([address objectForKey:@"country"]) {
-				formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"country"]];
-			}
-			formatted = [formatted stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			[address setValue:formatted forKey:@"formatted"];
-			
-			[addresses addObject:address];
-		}
-		[data setValue:addresses forKey:@"addresses"];
-		CFRelease(addressMultiValue);
+        if (addressMultiValue) {
+            NSMutableArray *addresses = [[NSMutableArray alloc] initWithCapacity:ABMultiValueGetCount(addressMultiValue)];
+            
+            for (int x = 0; x < ABMultiValueGetCount(addressMultiValue); x++) {
+                CFStringRef labelRef = ABMultiValueCopyLabelAtIndex(addressMultiValue, x);
+                NSString *label = (__bridge_transfer NSString *)labelRef;
+                
+                if (labelRef != NULL) {
+                    if (CFStringCompare(labelRef, kABWorkLabel, 0) == kCFCompareEqualTo) {
+                        label = @"work";
+                    } else if (CFStringCompare(labelRef, kABHomeLabel, 0) == kCFCompareEqualTo) {
+                        label = @"home";
+                    } else if (CFStringCompare(labelRef, kABOtherLabel, 0) == kCFCompareEqualTo) {
+                        label = @"other";
+                    }
+                } else {
+                    label = @"other";
+                }
+                
+                NSDictionary *dict = (__bridge_transfer NSDictionary *)ABMultiValueCopyValueAtIndex(addressMultiValue, x);
+                
+                NSMutableDictionary *address = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                [[NSNumber alloc] initWithBool:NO], @"pref",
+                                                [dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressStreetKey], @"streetAddress",
+                                                [dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressCityKey], @"locality",
+                                                [dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressStateKey], @"region",
+                                                [dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressZIPKey], @"postalCode",
+                                                [dict objectForKey:(__bridge_transfer NSString *)kABPersonAddressCountryKey], @"country",
+                                                label, @"type",
+                                                nil];
+                
+                NSString *formatted = @"";
+                if ([address objectForKey:@"streetAddress"]) {
+                    formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"streetAddress"]];
+                }
+                if ([address objectForKey:@"locality"]) {
+                    formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"locality"]];
+                }
+                if ([address objectForKey:@"region"]) {
+                    formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"region"]];
+                }
+                if ([address objectForKey:@"postalCode"]) {
+                    formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"postalCode"]];
+                }
+                if ([address objectForKey:@"country"]) {
+                    formatted = [formatted stringByAppendingFormat:@"%@\n", [address objectForKey:@"country"]];
+                }
+                formatted = [formatted stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                
+                [address setValue:formatted forKey:@"formatted"];
+                
+                [addresses addObject:address];
+            }
+            [data setValue:addresses forKey:@"addresses"];
+            CFRelease(addressMultiValue);
+        }
 	}
 	
     return data;
 }
 
++ (NSError *)contactError:(NSString *)description {
+    
+    NSDictionary *errorDetail =
+        @{ NSLocalizedDescriptionKey: description };
+    
+    NSError *thisError =
+        [NSError errorWithDomain:@"iOSContactDomain"
+                            code:1
+                        userInfo:errorDetail];
+    
+    return thisError;
+}
 
-/**
- * Create an ABRecordRef from a NSDictionary
- */
-+ (ABRecordRef) personFrom:(NSDictionary *)contact {
-    ABRecordRef person = ABPersonCreate();
++ (bool)mapElements:(ABRecordRef)newPerson
+           workDict:(NSDictionary *)workDict
+           elements:(NSArray *)elements
+          error_out:(CFErrorRef *)error_out {
+    bool result = YES;
+    // Cycle over all of our elements, looking for hits within the workDict.
     
-    // name
-    if ([contact objectForKey:@"name"]) {
-        NSDictionary *name = [contact objectForKey:@"name"];
-        ABRecordSetValue(person, kABPersonPrefixProperty, (__bridge CFStringRef) [name objectForKey:@"honorificPrefix"], NULL);
-        ABRecordSetValue(person, kABPersonFirstNameProperty, (__bridge CFStringRef) [name objectForKey:@"givenName"], NULL);
-        ABRecordSetValue(person, kABPersonMiddleNameProperty, (__bridge CFStringRef) [name objectForKey:@"middleName"], NULL);
-        ABRecordSetValue(person, kABPersonLastNameProperty, (__bridge CFStringRef) [name objectForKey:@"familyName"], NULL);
-        ABRecordSetValue(person, kABPersonSuffixProperty, (__bridge CFStringRef) [name objectForKey:@"honorificSuffix"], NULL);
-    }
-    ABRecordSetValue(person, kABPersonNicknameProperty, (__bridge CFStringRef) [contact objectForKey:@"nickname"], NULL);
-    
-    // phoneNumbers
-    if ([contact objectForKey:@"phoneNumbers"]) {
-        ABMutableMultiValueRef phoneNumbersMV = ABMultiValueCreateMutable(kABMultiStringPropertyType);
-        NSArray *phoneNumbers = [contact objectForKey:@"phoneNumbers"];
-        for (int i = 0; i < [phoneNumbers count]; i++) {
-            NSDictionary *phoneNumber = [phoneNumbers objectAtIndex:i];
-            NSString *type = [phoneNumber objectForKey:@"type"];
-            if (![type isKindOfClass:[NSString class]] ||
-                ![[phoneNumber objectForKey:@"value"] isKindOfClass:[NSString class]]) continue;
-            if ([type isEqualToString:@"mobile"] && [phoneNumber objectForKey:@"value"]) {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneMobileLabel, NULL);
-            } else if ([type isEqualToString:@"iPhone" ]) {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneIPhoneLabel, NULL);
-            } else if ([type isEqualToString:@"main" ]) {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneMainLabel, NULL);
-            } else if ([type isEqualToString:@"home_fax" ]) {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneHomeFAXLabel, NULL);
-            } else if ([type isEqualToString:@"work_fax" ]) {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhoneWorkFAXLabel, NULL);
-            } else if ([type isEqualToString:@"pager" ]) {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABPersonPhonePagerLabel, NULL);
-            } else if ([type isEqualToString:@"work" ]) {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABWorkLabel, NULL);
-            } else if ([type isEqualToString:@"home" ]) {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABHomeLabel, NULL);
-            } else {
-                ABMultiValueAddValueAndLabel(phoneNumbersMV, (__bridge CFStringRef) [phoneNumber objectForKey:@"value"], kABOtherLabel, NULL);
-            }
-        }
-        ABRecordSetValue(person, kABPersonPhoneProperty, phoneNumbersMV, nil);
-        CFRelease(phoneNumbersMV);
-    }
-    
-    // emails
-    if ([contact objectForKey:@"emails"]) {
-        ABMutableMultiValueRef emailsMV = ABMultiValueCreateMutable(kABMultiStringPropertyType);
-        NSArray *emails = [contact objectForKey:@"emails"];
-        for (int i = 0; i < [emails count]; i++) {
-            NSDictionary *email = [emails objectAtIndex:i];
-            NSString *type = [email objectForKey:@"type"];
-            if (![type isKindOfClass:[NSString class]] ||
-                ![[email objectForKey:@"value"] isKindOfClass:[NSString class]]) continue;
-            if ([type isEqualToString:@"work" ]) {
-                ABMultiValueAddValueAndLabel(emailsMV, (__bridge CFStringRef) [email objectForKey:@"value"], kABWorkLabel, NULL);
-            } else if ([type isEqualToString:@"home" ]) {
-                ABMultiValueAddValueAndLabel(emailsMV, (__bridge CFStringRef) [email objectForKey:@"value"], kABHomeLabel, NULL);
-            } else {
-                ABMultiValueAddValueAndLabel(emailsMV, (__bridge CFStringRef) [email objectForKey:@"value"], kABOtherLabel, NULL);
-            }
-        }
-        ABRecordSetValue(person, kABPersonEmailProperty, emailsMV, nil);
-        CFRelease(emailsMV);
-    }
-    
-    // addresses
-    if ([contact objectForKey:@"addresses"]) {
-        ABMutableMultiValueRef addressesMV = ABMultiValueCreateMutable(kABMultiDictionaryPropertyType);
-        NSArray *addresses = [contact objectForKey:@"addresses"];
-        for (int i = 0; i < [addresses count]; i++) {
-            NSDictionary *address = [addresses objectAtIndex:i];
-            NSMutableDictionary *dest = [[NSMutableDictionary alloc] init];
-            NSString *type = [address objectForKey:@"type"];
-            if (![type isKindOfClass:[NSString class]]) continue;
-
-            if ([[address objectForKey:@"streetAddress"] isKindOfClass:[NSString class]])
-                dest[(NSString*)kABPersonAddressStreetKey] = [address objectForKey:@"streetAddress"];
-            if ([[address objectForKey:@"locality"] isKindOfClass:[NSString class]])
-                dest[(NSString*)kABPersonAddressCityKey] = [address objectForKey:@"locality"];
-            if ([[address objectForKey:@"region"] isKindOfClass:[NSString class]])
-                dest[(NSString*)kABPersonAddressStateKey] = [address objectForKey:@"region"];
-            if ([[address objectForKey:@"postalCode"] isKindOfClass:[NSString class]])
-                dest[(NSString*)kABPersonAddressZIPKey] = [address objectForKey:@"postalCode"];
-            if ([[address objectForKey:@"country"] isKindOfClass:[NSString class]])
-                dest[(NSString*)kABPersonAddressCountryKey] = [address objectForKey:@"country"];
+    for (NSArray *element in elements) {
+        NSString *key = element[0];
+        NSNumber *propNum = element[1];
+        ABPropertyID prop = [propNum intValue];
+        
+        id value = workDict[key];
+        
+        // If we got a value...
+        
+        if (value) {
+            // ...go ahead and stuff it into newPerson.
+            result = ABRecordSetValue(newPerson,
+                                      prop, (__bridge CFTypeRef)value,
+                                      error_out);
             
-            if ([type isEqualToString:@"work" ]) {
-                ABMultiValueAddValueAndLabel(addressesMV, (__bridge CFDictionaryRef) dest, kABWorkLabel, NULL);
-            } else if ([type isEqualToString:@"home" ]) {
-                ABMultiValueAddValueAndLabel(addressesMV, (__bridge CFDictionaryRef) dest, kABHomeLabel, NULL);
-            } else {
-                ABMultiValueAddValueAndLabel(addressesMV, (__bridge CFDictionaryRef) dest, kABOtherLabel, NULL);
+            if (!result) {
+                // Something went wrong; get outta here.
+                break;
             }
         }
-        ABRecordSetValue(person, kABPersonAddressProperty, addressesMV, nil);
-        CFRelease(addressesMV);
     }
     
-    // birthday
-    // TODO ABRecordSetValue(person, kABPersonBirthdayProperty, (__bridge CFDateRef) [contact objectForKey:@"birthday"], NULL);
-    
-    // note
-    ABRecordSetValue(person, kABPersonNoteProperty, (__bridge CFStringRef) [contact objectForKey:@"note"], NULL);
+    return result;
+}
 
-    return person;
++ (bool)mapUnivalues:(ABRecordRef)newPerson
+         contactDict:(NSDictionary *)contactDict
+        propertyMaps:(NSArray *)propertyMaps
+           error_out:(CFErrorRef *)error_out {
+    bool result = YES;
+    
+    for (NSArray *map in propertyMaps) {
+        NSString *workKey = map[0];
+        NSArray *elements = map[1];
+        
+        // Assume that they want to look at the top-level dictionary...
+        NSDictionary *workDict = contactDict;
+        
+        // ...then check to see if they gave a key.
+        if ((id) workKey != [NSNull null]) {
+            // Yup.  Shift workDict down.
+            workDict = contactDict[workKey];
+        }
+        
+        if (!workDict || ([workDict count] <= 0)) {
+            // The dict they want to look at doesn't exist or is empty.
+            // Skip it.
+            continue;
+        }
+        
+        result = [self mapElements:newPerson
+                          workDict:workDict
+                          elements:elements
+                         error_out:error_out];
+    }
+    
+    return result;
+}
+
+bool isPresent(NSString *str) {
+    return (str && ((id)str != [NSNull null]) && ([str length] > 0));
+}
+
++ (bool)mapMultiValues:(ABRecordRef)newPerson
+           contactDict:(NSDictionary *)contactDict
+     multipropertyMaps:(NSArray *)multipropertyMaps
+             error_out:(CFErrorRef *)error_out {
+    bool result = YES;
+    
+    for (NSArray *multiMap in multipropertyMaps) {
+        NSString *workKey = multiMap[0];
+        NSNumber *propNum = multiMap[1];
+        NSString *defaultLabel = multiMap[2];
+        NSDictionary *elements = multiMap[3];
+        
+        // Here, we MUST have a workKey...
+        NSAssert(isPresent(workKey), @"workKey cannot be null");
+        
+        // ...and it's the name of an array, not of another dictionary.
+        NSArray *workArray = contactDict[workKey];
+        
+        if (!workArray || ([workArray count] <= 0)) {
+            // The array they want to look at doesn't exist or is empty.
+            // Skip it.
+            continue;
+        }
+        
+        // OK.  Create a new multivalue...
+        ABMutableMultiValueRef multiValue =
+            ABMultiValueCreateMutable(kABMultiStringPropertyType);
+        
+        // ...and cycle over the workArray rather than the map this time.
+        for (NSDictionary *workElement in workArray) {
+            NSString *value = workElement[@"value"];
+            NSString *type = workElement[@"type"];
+            // ignore "pref" -- we don't support it.
+            
+            NSString *label = elements[type];
+            
+            if (!isPresent(label)) {
+                // Not in the map.  Do we have a default?
+                if (isPresent(defaultLabel)) {
+                    // Yeah.  Use that.
+                    label = defaultLabel;
+                }
+                else {
+                    // If we have no label and no default, skip it.
+                    continue;
+                }
+            }
+            
+            if (!isPresent(value)) {
+                continue;
+            }
+            
+            // OK, off we go.  Add to the multivalue.
+            
+            result =
+                ABMultiValueAddValueAndLabel(multiValue,
+                                             (__bridge CFTypeRef)value,
+                                             (__bridge CFStringRef)label,
+                                             NULL);
+            
+            if (!result) {
+                // That ain't good.
+                NSString *errStr =
+                    [NSString stringWithFormat:@"couldn't add %@ %@ to contact",
+                        workKey, label];
+                
+                NSError *thisError = [self contactError:errStr];
+                *error_out = (__bridge CFErrorRef)thisError;
+                break;
+            }
+        }
+        
+        if (result) {
+            // Add it to the contact.
+            result = ABRecordSetValue(newPerson, [propNum intValue],
+                                      multiValue, error_out);
+        }
+        
+        if (!result) {
+            // Aarrrrgh.
+            break;
+        }
+    }
+    
+    return result;
+}
+
++ (ABRecordRef)contactCreateFrom:(NSDictionary *)dict
+                       error_out:(CFErrorRef *)error_out {
+    // WARNING WARNING WARNING!!
+    //
+    // You _MUST_ create newPerson _before_ setting up the maps below.
+    // Read the comments above the maps for more, but FFS don't waste
+    // an hour or two of your life, like I just did, getting this wrong.
+    
+    bool result = YES;
+    
+    // Create a new person record.
+    ABRecordRef newPerson = ABPersonCreate();   // MUST HAPPEN BEFORE MAPS -- SEE COMMENTS FOR MAPS
+    
+    if (!newPerson) {
+        NSError *thisError =
+        [self contactError:@"couldn't allocate new ABRecord"];
+        
+        *error_out = (__bridge CFErrorRef)thisError;
+        
+        result = NO;
+    }
+    
+    // You might think these maps could be statics, but the @[] construction
+    // is actually a run-time thing, not a compile-time thing.  Even _worse_,
+    // though: the !*&#!*@&# kAB...Property elements are _0_ before you call
+    // something that calls ABAddressBookCreate().
+    //
+    // I just blew hours of my life tracking that down -- oh my GOD how
+    // incredibly infuriating.  Hey Apple -- who the !*@&#!*& designed this
+    // POS?  And why in the name of all that is holy is it not documented
+    // in big red letters in the ABPerson reference?  FFS.
+    
+    NSArray *propertyMaps =
+        @[
+          @[ [NSNull null],
+             @[ @[ @"note", @(kABPersonNoteProperty) ],
+                @[ @"nickname", @(kABPersonNicknameProperty) ],
+                ],
+             ],
+          @[ @"name",
+             @[ @[ @"givenName", @(kABPersonFirstNameProperty) ],
+                @[ @"familyName", @(kABPersonLastNameProperty) ],
+                @[ @"honorificPrefix", @(kABPersonPrefixProperty) ],
+                @[ @"honorificSuffix", @(kABPersonSuffixProperty) ],
+                @[ @"middleName", @(kABPersonMiddleNameProperty) ],
+                ],
+             ],
+          ];
+    
+    // multiPropertyMaps is an array of subarrays:
+    //
+    // @[ JSON-key, kABPerson-property, default-label, map ]
+    //
+    // where the map is a dict mapping an inner JSON key to the
+    // kABPerson-multi-string-label.
+    //
+    // The default-label may be an NSNull to mean 'preserve the JSON key
+    // as the value if it's not found.'
+    
+    NSArray *multipropertyMaps =
+        @[
+          @[ @"phoneNumbers", @(kABPersonPhoneProperty), @"mobile",
+             @{ @"mobile": (__bridge NSString *) kABPersonPhoneMobileLabel,
+                @"iPhone": (__bridge NSString *) kABPersonPhoneIPhoneLabel,
+                @"main": (__bridge NSString *) kABPersonPhoneMainLabel,
+                @"home_fax": (__bridge NSString *) kABPersonPhoneHomeFAXLabel,
+                @"work_fax": (__bridge NSString *) kABPersonPhoneWorkFAXLabel,
+                @"pager": (__bridge NSString *) kABPersonPhonePagerLabel,
+                @"work": (__bridge NSString *) kABWorkLabel,
+                @"home": (__bridge NSString *) kABHomeLabel,
+                @"other": (__bridge NSString *) kABOtherLabel,
+                },
+             ],
+          @[ @"emails", @(kABPersonEmailProperty), @"home",
+             @{ @"work": (__bridge NSString *) kABWorkLabel,
+                @"home": (__bridge NSString *) kABHomeLabel,
+                @"other": (__bridge NSString *) kABOtherLabel,
+                },
+             ],
+          @[ @"urls", @(kABPersonEmailProperty), @"other",
+             @{ @"homepage": (__bridge NSString *) kABPersonHomePageLabel,
+                @"work": (__bridge NSString *) kABWorkLabel,
+                @"home": (__bridge NSString *) kABHomeLabel,
+                @"other": (__bridge NSString *) kABOtherLabel,
+                },
+             ],
+          ];
+    
+    NSArray *orgMap =
+        @[ @[ @"name", @(kABPersonOrganizationProperty) ],
+           @[ @"department", @(kABPersonDepartmentProperty) ],
+           @[ @"title", @(kABPersonJobTitleProperty) ] ];
+    
+    if (result) {
+        result = [self mapUnivalues:newPerson
+                        contactDict:dict
+                       propertyMaps:propertyMaps
+                          error_out:error_out];
+    }
+    
+    if (result) {
+        result = [self mapMultiValues:newPerson
+                          contactDict:dict
+                    multipropertyMaps:multipropertyMaps
+                            error_out:error_out];
+    }
+    
+    if (result) {
+        // Organizations are weird, since that's an array of dicts where
+        // each dict looks like a univalue.  Do them by hand.
+        
+        NSArray *orgs = dict[@"organizations"];
+        
+        if (orgs && ([orgs count] > 0)) {
+            // Ignore all but the first org.
+            result = [self mapElements:newPerson
+                              workDict:orgs[0]
+                              elements:orgMap
+                             error_out:error_out];
+        }
+    }
+    
+    if (result) {
+        // Birthday is special, since it has to be a date, not a string,
+        // and there are a bunch of ways to format birthdays.  Here are a few.
+        // (Man, handling dates sucks.)
+
+        NSArray *bDayFormats =
+            @[ @"yyyy-MM-dd HH:mm:ss Z",
+               @"yyyy-MM-dd HH:mm:ss",
+               @"yyyy-MM-dd"
+              ];
+        
+        NSString *bDayString = dict[@"birthday"];
+        
+        if (bDayString && ([bDayString length] > 0)) {
+            NSDateFormatter *format = [[NSDateFormatter alloc] init];
+            NSDate *birthday = nil;
+            
+            for (int i = 0; i < [bDayFormats count]; i++) {
+                NSString *fmt = [bDayFormats objectAtIndex:i];
+                
+                
+                [format setDateFormat:fmt];
+                birthday = [format dateFromString:bDayString];
+
+                if (birthday) {
+//                    NSLog(@"parsed %@ with %@", bDayString, fmt);
+                    break;
+                }
+//                else {
+//                    NSLog(@"couldn't parse %@ with %@", bDayString, fmt);
+//                }
+            }
+
+            if (birthday) {
+                result = ABRecordSetValue(newPerson,
+                                          kABPersonBirthdayProperty,
+                                          (__bridge CFTypeRef)birthday,
+                                          error_out);
+            }
+            else {
+                NSLog(@"couldn't convert %@ to NSDate", bDayString);
+                // Not a fatal error, just keep going.
+            }
+        }
+    }
+    
+cleanup:
+    if (!result) {
+        // Something went wrong.  Release our person...
+        if (newPerson) CFRelease(newPerson);
+        
+        // ...and return nil.
+        newPerson = nil;
+    }
+    
+    return newPerson;
 }
 
 @end
