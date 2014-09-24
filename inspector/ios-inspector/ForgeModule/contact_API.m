@@ -52,6 +52,42 @@
     }
 }
 
++ (void)insert:(ForgeTask*)task contact:(NSDictionary *)contactDict {
+    NSLog(@"Called add: %@", contactDict);
+    
+    ABRecordRef newPerson = [contact_Util personFrom:contactDict];
+
+    if (newPerson == NULL) {
+        [task error:@"Not a valid contact" type:@"UNEXPECTED_FAILURE" subtype:nil];
+        return;
+    }
+    
+    ABAddressBookRef addressBook = ABAddressBookCreate();
+    CFErrorRef error;
+
+    if (![self addressBookAccessGranted:addressBook]) {
+        NSLog(@"error! no access");
+        [task error:@"User didn't grant access to address book" type:@"EXPECTED_FAILURE" subtype:nil];
+    }
+    else if (!ABAddressBookAddRecord(addressBook, newPerson, &error)) {
+        NSLog(@"error! %@", error);
+        [task error:@"couldn't add new record" type:@"UNEXPECTED_FAILURE" subtype:nil];
+    }
+    else if (!ABAddressBookSave(addressBook, &error)) {
+        NSLog(@"error! %@", error);
+        [task error:@"couldn't save address book" type:@"UNEXPECTED_FAILURE" subtype:nil];
+    }
+    else {
+        // FINALLY.
+        NSString *idStr =
+            [NSString stringWithFormat:@"%d", ABRecordGetRecordID(newPerson)];
+
+        [task success:idStr];
+    }
+
+    CFRelease(newPerson);
+}
+
 + (BOOL)addressBookAccessGranted:(ABAddressBookRef)addressBook {
     __block BOOL accessGranted = NO;
     

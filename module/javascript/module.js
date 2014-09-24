@@ -20,5 +20,10 @@ forge['contact'] = {
 			contact = {};
 		}
 		forge.internal.call("contact.add", {contact: contact}, success, error);
+	},
+
+	'insert': function (contact, success, error) {
+	    forge.internal.call("contact.insert", {contact: contact}, 
+				success, error);
 	}
 };
