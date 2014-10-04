@@ -602,15 +602,18 @@ class Util {
 	/**
 	 * Fill out a single contact with data from the provided JsonObject
 	 *
+	 * @param accountType  Account type under which to add contact (can be null)
+     * @param accountName  Account name under which to add contact (can be null)
 	 * @param contact object as JsonObject
 	 * @return the contact object
 	 */
-	public static ArrayList<ContentProviderOperation> contactFromJSON(JsonObject contact) {
+	public static ArrayList<ContentProviderOperation> contactFromJSON(String accountType, String accountName,
+																	  JsonObject contact) {
 		ArrayList<ContentProviderOperation> person = new ArrayList<ContentProviderOperation>();
 
 		person.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
-				.withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-				.withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+				.withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, accountType)
+				.withValue(ContactsContract.RawContacts.ACCOUNT_NAME, accountName)
 				.build());
 
 		// name
