@@ -1,7 +1,6 @@
 module("forge.contact");
 
 if (forge.is.mobile()) {
-
 	asyncTest("Select all", 1, function() {
 		forge.contact.selectAll(['name'], function (data) {
 			askQuestion("We found "+data.length+" contacts - sound right?", {
@@ -107,6 +106,81 @@ if (forge.is.mobile()) {
 		};
 		askQuestion("When prompted cancel selecting a contact	", { Yes: runTest, No: runTest });
 	});
+	
+	asyncTest("Insert contact", 1, function() {
+		var runTest = function () {
+			var contact = {
+				"name": {
+					"familyName": "Cald",
+					"givenName": "Jane",
+					// "middleName": null,
+					"honorificPrefix": "Ms",
+					"honorificSuffix": null
+				},
+				"nickname": "Janie",
+				"phoneNumbers": [ {
+					"value": "+18005885263",
+					"type": "work"
+				} ],
+				"emails": [ {
+					"value": "jane@cald.com",
+					"type": "work"
+				} ],
+				"addresses": [ {
+					"country": "United Kingdom",
+					"locality": "London",
+					"postalCode": null,
+					//"region": "London",
+					"streetAddress": "1-11 Baches Street",
+					"type": "work"
+				} ],
+				"birthday": "1983-11-23",
+				"note": "Girl can sing!"
+			};
+
+			forge.contact.insert(contact,
+				function (contactID) {
+					forge.contact.selectById(contactID, 
+						function (readBack) {
+							delete readBack.photos;
+
+							askQuestion("Is this Jane? <pre>"+JSON.stringify(readBack)+"</pre>", {
+								Yes: function () {
+									ok(true, "User claims success");
+									start();
+								}, 
+								No: function () {
+									ok(false, "User claims failure");
+									start();
+								}
+							});
+						},
+						function (e) {
+							ok(false, "Error callback on readBack: "+e.message);
+							start();
+						}
+					);
+
+					// askQuestion("Did Jane get added?  (ID " + contactID + ")", {
+					// 	Yes: function () {
+					// 		ok(true, "User claims success");
+					// 		start();
+					// 	}, 
+					// 	No: function () {
+					// 		ok(false, "User claims failure");
+					// 		start();
+					// 	}
+					// });
+				},
+				function (e) {
+					ok(false, "Error callback on insert: "+e.message);
+					start();
+				}
+			);
+		};				
+
+		askQuestion("When prompted let me insert Jane", { Yes: runTest, No: runTest });
+	});
 
 	asyncTest("Add contact", 1, function() {
 		var runTest = function () {
@@ -191,5 +265,4 @@ if (forge.is.mobile()) {
 			askQuestion("When prompted cancel adding a contact", { Yes: runTest, No: runTest });
 		});
 	}
-
 }

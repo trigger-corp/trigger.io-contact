@@ -15,5 +15,6 @@
 + (void)selectById:(ForgeTask*)task id:(NSString *)contactId;
 + (void)selectAll:(ForgeTask*)task fields:(NSArray*) fields;
 + (void)add:(ForgeTask*)task contact:(NSDictionary*) contact;
++ (void)insert:(ForgeTask*)task contact:(NSDictionary*) contact;
 
 @end
