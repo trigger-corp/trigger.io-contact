@@ -1,8 +1,8 @@
 {
-    "changes": "* New method `insert`\n* More robust error checking under iOS",
-    "description": "Access contacts saved by the user on their device.\n\nThe contact module allows you to programmatically, or via a user prompt, load contact information from the devices contact list.", 
-    "min_platform_version": "v2.1.0", 
-    "namespace": "contact", 
-    "platform_version": "v2.2.5", 
-    "version": "2.6"
+	"changes": "* More robust error checking for Android.",
+	"description": "Access contacts saved by the user on their device.\n\nThe contact module allows you to programmatically, or via a user prompt, load contact information from the devices contact list.",
+	"min_platform_version": "v2.1.0",
+	"namespace": "contact",
+	"platform_version": "v2.2.5",
+	"version": "2.6.1"
 }
