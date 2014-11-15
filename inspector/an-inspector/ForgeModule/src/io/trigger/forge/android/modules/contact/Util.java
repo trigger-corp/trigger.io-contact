@@ -173,10 +173,12 @@ class Util {
 
 	private static int getValueOrMinusOne(Cursor cursor, String name, Map<String, Integer> columnMemo) {
 		String value = getValue(cursor, name, columnMemo);
-		if ("" == value) {
+
+		try {
+			return Integer.parseInt(value);			
+		}
+		catch (Exception e) {
 			return -1;
-		} else {
-			return Integer.parseInt(value);
 		}
 	}
 
