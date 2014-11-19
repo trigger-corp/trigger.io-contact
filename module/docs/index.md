@@ -31,14 +31,14 @@ Contacts are represented by a simple JavaScript object which follows the [W3C Co
 !param: error `function(content)` called with details of any error which may occur
 
 !method: forge.contact.add(contact, success, error)
-!param: contact `object` Contact object to add. See "Contact object" documention below for the object format. Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`
+!param: contact `object` Contact object to add. See Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`. See "Contact object" documentation below for the object format.
 !param: success `function(contact)` callback to be invoked when no errors occur
 !description: Adds a contact via the "Add Contact" dialog. Returns the contact id if it was successfully added
 !platforms: iOS, Android
 !param: error `function(content)` called with details of any error which may occur
 
 !method: forge.contact.insert(contact, success, error)
-!param: contact `object` Contact object to add. See "Contact object" documention below for the object format. Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`
+!param: contact `object` Contact object to add. Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`. See "Contact object" documentation below for the object format. 
 !param: success `function(contact)` callback to be invoked when no errors occur
 !description: Inserts a contact without requiring user intervention. Returns the contact id if it was successfully added.
 !platforms: iOS, Android
