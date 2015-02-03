@@ -223,5 +223,6 @@ phoneNumbers and emails.
 
 ###Permissions
 
-On Android this module will add the ``READ_CONTACTS`` permission to your
-app, users will be prompted to accept this when they install your app.
+On Android this module will add the ``READ_CONTACTS`` and ``WRITE_CONTACTS``
+permission to your app, users will be prompted to accept this when they install
+your app.
