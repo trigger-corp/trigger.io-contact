@@ -1,8 +1,8 @@
 {
-	"changes": "* Support runtime permissions on Android 6.0",
+	"changes": "* Fixed crash on iOS 9.0 when selecting a contact with one or more linked contacts.",
 	"description": "Access contacts saved by the user on their device.\n\nThe contact module allows you to programmatically, or via a user prompt, load contact information from the devices contact list.",
 	"min_platform_version": "v2.2.16",
 	"namespace": "contact",
 	"platform_version": "v2.2.16",
-	"version": "2.7"
+	"version": "2.8"
 }
