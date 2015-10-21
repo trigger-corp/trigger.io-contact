@@ -31,10 +31,17 @@ Contacts are represented by a simple JavaScript object which follows the [W3C Co
 !param: error `function(content)` called with details of any error which may occur
 
 !method: forge.contact.add(contact, success, error)
-!param: contact `object` Contact object to add. Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`
+!param: contact `object` Contact object to add. See Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`. See "Contact object" documentation below for the object format.
 !param: success `function(contact)` callback to be invoked when no errors occur
-!description: Returns the contact if it was successfully added
-!platforms: iOS
+!description: Adds a contact via the "Add Contact" dialog. Returns the contact id if it was successfully added
+!platforms: iOS, Android
+!param: error `function(content)` called with details of any error which may occur
+
+!method: forge.contact.insert(contact, success, error)
+!param: contact `object` Contact object to add. Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`. See "Contact object" documentation below for the object format. 
+!param: success `function(contact)` callback to be invoked when no errors occur
+!description: Inserts a contact without requiring user intervention. Returns the contact id if it was successfully added.
+!platforms: iOS, Android
 !param: error `function(content)` called with details of any error which may occur
 
 
@@ -216,5 +223,6 @@ phoneNumbers and emails.
 
 ###Permissions
 
-On Android this module will add the ``READ_CONTACTS`` permission to your
-app, users will be prompted to accept this when they install your app.
+On Android this module will add the ``READ_CONTACTS`` and ``WRITE_CONTACTS``
+permission to your app, users will be prompted to accept this when they install
+your app.

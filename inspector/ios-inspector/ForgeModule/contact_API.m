@@ -13,12 +13,20 @@
 @implementation contact_API
 
 + (void)select:(ForgeTask*)task {
-	ABPeoplePickerNavigationController *picker = [[ABPeoplePickerNavigationController alloc] init];
-	
-	contact_Delegate *delegate = [[contact_Delegate alloc] initWithTask:task];
-	picker.peoplePickerDelegate = delegate;
-	
-	[[[ForgeApp sharedApp] viewController] presentModalViewController:picker animated:YES];
+    ABAddressBookRef addressBook = ABAddressBookCreate();
+    
+    if (![self addressBookAccessGranted:addressBook]) {
+        NSLog(@"error! no access");
+        [task error:@"User didn't grant access to address book" type:@"EXPECTED_FAILURE" subtype:nil];
+
+    } else {
+        ABPeoplePickerNavigationController *picker = [[ABPeoplePickerNavigationController alloc] init];
+        
+        contact_Delegate *delegate = [[contact_Delegate alloc] initWithTask:task];
+        picker.peoplePickerDelegate = delegate;
+        
+        [[[ForgeApp sharedApp] viewController] presentViewController:picker animated:YES completion:nil];
+    }
 }
 
 + (void)selectById:(ForgeTask *)task id:(NSString *) contactId {
@@ -93,7 +101,7 @@
 + (BOOL)addressBookAccessGranted:(ABAddressBookRef)addressBook {
     __block BOOL accessGranted = NO;
     
-    if (ABAddressBookRequestAccessWithCompletion != NULL) { // we're on iOS 6
+    if (ABAddressBookRequestAccessWithCompletion != NULL) { // we're on iOS 6 or newer
         dispatch_semaphore_t sema = dispatch_semaphore_create(0);
         
         ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {

@@ -36,6 +36,10 @@ public class API {
 	 * @param task
 	 */
 	public static void select(final ForgeTask task) {
+		if (!Util.checkPermissions()) {
+			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
+			return;
+		}
 		ForgeIntentResultHandler handler = new ForgeIntentResultHandler() {
 			@Override
 			public void result(int requestCode, int resultCode, Intent data) {
@@ -51,10 +55,12 @@ public class API {
 							contactId = cursor.getString(0);
 							result = Util.contactIdToJsonObject(contactId, null);
 						}
+						task.success(result);
+					} catch (Exception ex) {
+						task.error(ex);
 					} finally {
 						cursor.close();
 					}
-					task.success(result);
 				} else if (resultCode == RESULT_CANCELED) {
 					task.error("User cancelled selecting contact", "EXPECTED_FAILURE", null);
 				} else {
@@ -71,6 +77,10 @@ public class API {
 	 * @param contactId
 	 */
 	public static void selectById(final ForgeTask task, @ForgeParam("id") final String contactId) {
+		if (!Util.checkPermissions()) {
+			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
+			return;
+		}
 		JsonObject contact = Util.contactIdToJsonObject(contactId, null);
 		if (contact != null) {
 			task.success(contact);
@@ -89,6 +99,10 @@ public class API {
 	 * @param fields
 	 */
 	public static void selectAll(final ForgeTask task, @ForgeParam("fields") final JsonArray fields) {
+		if (!Util.checkPermissions()) {
+			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
+			return;
+		}
 		Map<String, JsonObject> contacts = new Hashtable<String, JsonObject>();
 		Cursor cursor = ForgeApp.getActivity().getContentResolver().query(
 				ContactsContract.Contacts.CONTENT_URI,
@@ -133,6 +147,10 @@ public class API {
 	 * @param contact
 	 */
 	public static void add(final ForgeTask task, @ForgeParam("contact") final JsonObject contact) {
+		if (!Util.checkPermissions()) {
+			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
+			return;
+		}
 		try {
 			ArrayList<ContentProviderOperation> person = Util.contactFromJSON(null, null, contact);
 			if (person == null) {
@@ -218,6 +236,10 @@ public class API {
     @SuppressLint("NewApi")
     public static void insert(final ForgeTask task, 
                            	  @ForgeParam("contact") final JsonObject contact) {
+		if (!Util.checkPermissions()) {
+			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
+			return;
+		}
         // We need an account under which to add this silly contact.  Sadly, 
         // the Right Way to do changed in Android 4 (Ice Cream Sandwich).
         //
