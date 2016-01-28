@@ -2,6 +2,8 @@ package io.trigger.forge.android.modules.contact;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
+
+import io.trigger.forge.android.core.ForgeActivity.EventAccessBlock;
 import io.trigger.forge.android.core.ForgeApp;
 import io.trigger.forge.android.core.ForgeIntentResultHandler;
 import io.trigger.forge.android.core.ForgeLog;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 
+import android.Manifest;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
@@ -36,39 +39,44 @@ public class API {
 	 * @param task
 	 */
 	public static void select(final ForgeTask task) {
-		if (!Util.checkPermissions()) {
-			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
-			return;
-		}
-		ForgeIntentResultHandler handler = new ForgeIntentResultHandler() {
+		ForgeApp.getActivity().requestPermission(Manifest.permission.READ_CONTACTS, new EventAccessBlock() {
 			@Override
-			public void result(int requestCode, int resultCode, Intent data) {
-				if (resultCode == RESULT_OK) {
-					String contactId;
-					JsonObject result = new JsonObject();
-					Cursor cursor = null;
-					cursor = ForgeApp.getActivity().getContentResolver().query(data.getData(),
-							new String[] { ContactsContract.Contacts._ID },
-							null, null, null);
-					try {
-						if (cursor.moveToFirst()) {
-							contactId = cursor.getString(0);
-							result = Util.contactIdToJsonObject(contactId, null);
-						}
-						task.success(result);
-					} catch (Exception ex) {
-						task.error(ex);
-					} finally {
-						cursor.close();
-					}
-				} else if (resultCode == RESULT_CANCELED) {
-					task.error("User cancelled selecting contact", "EXPECTED_FAILURE", null);
-				} else {
-					task.error("Unknown error selecting contact", "UNEXPECTED_FAILURE", null);
+			public void run(boolean granted) {
+				if (!granted) {
+					task.error("Permission denied. User didn't grant access to address book.", "EXPECTED_FAILURE", null);
+					return;
 				}
+				ForgeIntentResultHandler handler = new ForgeIntentResultHandler() {
+					@Override
+					public void result(int requestCode, int resultCode, Intent data) {
+						if (resultCode == RESULT_OK) {
+							String contactId;
+							JsonObject result = new JsonObject();
+							Cursor cursor = null;
+							cursor = ForgeApp.getActivity().getContentResolver().query(data.getData(),
+									new String[]{ContactsContract.Contacts._ID},
+									null, null, null);
+							try {
+								if (cursor.moveToFirst()) {
+									contactId = cursor.getString(0);
+									result = Util.contactIdToJsonObject(contactId, null);
+								}
+								task.success(result);
+							} catch (Exception ex) {
+								task.error(ex);
+							} finally {
+								cursor.close();
+							}
+						} else if (resultCode == RESULT_CANCELED) {
+							task.error("User cancelled selecting contact", "EXPECTED_FAILURE", null);
+						} else {
+							task.error("Unknown error selecting contact", "UNEXPECTED_FAILURE", null);
+						}
+					}
+				};
+				ForgeApp.intentWithHandler(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI), handler);
 			}
-		};
-		ForgeApp.intentWithHandler(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI), handler);
+		});
 	}
 
 	/**
@@ -77,16 +85,21 @@ public class API {
 	 * @param contactId
 	 */
 	public static void selectById(final ForgeTask task, @ForgeParam("id") final String contactId) {
-		if (!Util.checkPermissions()) {
-			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
-			return;
-		}
-		JsonObject contact = Util.contactIdToJsonObject(contactId, null);
-		if (contact != null) {
-			task.success(contact);
-		} else {
-			task.error("No contact with id '"+contactId+"' found", "EXPECTED_FAILURE", null);
-		}
+		ForgeApp.getActivity().requestPermission(Manifest.permission.READ_CONTACTS, new EventAccessBlock() {
+			@Override
+			public void run(boolean granted) {
+				if (!granted) {
+					task.error("Permission denied. User didn't grant access to address book.", "EXPECTED_FAILURE", null);
+					return;
+				}
+				JsonObject contact = Util.contactIdToJsonObject(contactId, null);
+				if (contact != null) {
+					task.success(contact);
+				} else {
+					task.error("No contact with id '" + contactId + "' found", "EXPECTED_FAILURE", null);
+				}
+			}
+		});
 	}
 
 	/**
@@ -99,45 +112,50 @@ public class API {
 	 * @param fields
 	 */
 	public static void selectAll(final ForgeTask task, @ForgeParam("fields") final JsonArray fields) {
-		if (!Util.checkPermissions()) {
-			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
-			return;
-		}
-		Map<String, JsonObject> contacts = new Hashtable<String, JsonObject>();
-		Cursor cursor = ForgeApp.getActivity().getContentResolver().query(
-				ContactsContract.Contacts.CONTENT_URI,
-				new String[] {
-						ContactsContract.Contacts._ID,
-						ContactsContract.Contacts.DISPLAY_NAME
-				},
-				null, null, null);
-		try {
-			if (cursor.moveToFirst()) {
-				do {
-					String contactId = cursor.getString(0);
-					JsonObject contact;
-					if (contacts.containsKey(contactId)) {
-						contact = contacts.get(contactId);
-					} else {
-						contact = new JsonObject();
-						contact.addProperty("id", contactId);
-						contact.addProperty("displayName", cursor.getString(1));
+		ForgeApp.getActivity().requestPermission(Manifest.permission.READ_CONTACTS, new EventAccessBlock() {
+			@Override
+			public void run(boolean granted) {
+				if (!granted) {
+					task.error("Permission denied. User didn't grant access to address book.", "EXPECTED_FAILURE", null);
+					return;
+				}
+				Map<String, JsonObject> contacts = new Hashtable<String, JsonObject>();
+				Cursor cursor = ForgeApp.getActivity().getContentResolver().query(
+						ContactsContract.Contacts.CONTENT_URI,
+						new String[]{
+								ContactsContract.Contacts._ID,
+								ContactsContract.Contacts.DISPLAY_NAME
+						},
+						null, null, null);
+				try {
+					if (cursor.moveToFirst()) {
+						do {
+							String contactId = cursor.getString(0);
+							JsonObject contact;
+							if (contacts.containsKey(contactId)) {
+								contact = contacts.get(contactId);
+							} else {
+								contact = new JsonObject();
+								contact.addProperty("id", contactId);
+								contact.addProperty("displayName", cursor.getString(1));
+							}
+							contacts.put(contactId, contact);
+						} while (cursor.moveToNext());
 					}
-					contacts.put(contactId, contact);
-				} while (cursor.moveToNext());
-			}
-			if (fields.size() != 0) {
-				Util.populateContacts(contacts, fields);
-			}
+					if (fields.size() != 0) {
+						Util.populateContacts(contacts, fields);
+					}
 
-			JsonArray results = new JsonArray();
-			for (JsonObject value: contacts.values()) {
-				results.add(value);
+					JsonArray results = new JsonArray();
+					for (JsonObject value : contacts.values()) {
+						results.add(value);
+					}
+					task.success(results);
+				} finally {
+					cursor.close();
+				}
 			}
-			task.success(results);
-		} finally {
-			cursor.close();
-		}
+		});
 	}
 
 	/**
@@ -147,31 +165,36 @@ public class API {
 	 * @param contact
 	 */
 	public static void add(final ForgeTask task, @ForgeParam("contact") final JsonObject contact) {
-		if (!Util.checkPermissions()) {
-			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
-			return;
-		}
-		try {
-			ArrayList<ContentProviderOperation> person = Util.contactFromJSON(null, null, contact);
-			if (person == null) {
-				task.error("Not a valid contact");
-				return;
+		ForgeApp.getActivity().requestPermission(Manifest.permission.WRITE_CONTACTS, new EventAccessBlock() {
+			@Override
+			public void run(boolean granted) {
+				if (!granted) {
+					task.error("Permission denied. User didn't grant access to address book.", "EXPECTED_FAILURE", null);
+					return;
+				}
+				try {
+					ArrayList<ContentProviderOperation> person = Util.contactFromJSON(null, null, contact);
+					if (person == null) {
+						task.error("Not a valid contact");
+						return;
+					}
+					ContentProviderResult[] result = ForgeApp.getActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, person);
+					if (result.length != person.size()) {
+						ForgeLog.w("Not all contact fields could be added");
+					}
+					if (result.length > 0) {
+						long rawContactID = ContentUris.parseId(result[0].uri);
+						contact.addProperty("id", String.valueOf(rawContactID));
+						task.success(contact);
+					} else {
+						task.error("Unknown error adding contact", "UNEXPECTED_FAILURE", null);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					task.error("Failed to add contact: " + e.getLocalizedMessage(), "UNEXPECTED_FAILURE", null);
+				}
 			}
-			ContentProviderResult [] result = ForgeApp.getActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, person);
-			if (result.length != person.size()) {
-				ForgeLog.w("Not all contact fields could be added");
-			}
-			if (result.length > 0) {
-				long rawContactID = ContentUris.parseId(result[0].uri);
-				contact.addProperty("id", String.valueOf(rawContactID));
-				task.success(contact);
-			} else {
-				task.error("Unknown error adding contact", "UNEXPECTED_FAILURE", null);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			task.error("Failed to add contact: " + e.getLocalizedMessage(), "UNEXPECTED_FAILURE", null);
-		}
+		});
 	}
 
     /**
@@ -236,84 +259,85 @@ public class API {
     @SuppressLint("NewApi")
     public static void insert(final ForgeTask task, 
                            	  @ForgeParam("contact") final JsonObject contact) {
-		if (!Util.checkPermissions()) {
-			task.error("Permission denied", "UNEXPECTED_FAILURE", null);
-			return;
-		}
-        // We need an account under which to add this silly contact.  Sadly, 
-        // the Right Way to do changed in Android 4 (Ice Cream Sandwich).
-        //
-        // So.  What up with our rev of Android?
+		ForgeApp.getActivity().requestPermission(Manifest.permission.WRITE_CONTACTS, new EventAccessBlock() {
+			@Override
+			public void run(boolean granted) {
+				if (!granted) {
+					task.error("Permission denied. User didn't grant access to address book.", "EXPECTED_FAILURE", null);
+					return;
+				}
+				// We need an account under which to add this silly contact.  Sadly,
+				// the Right Way to do changed in Android 4 (Ice Cream Sandwich).
+				//
+				// So.  What up with our rev of Android?
 
-        int currentAPIVersion = android.os.Build.VERSION.SDK_INT;
-        int ICSAPIVersion = android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+				int currentAPIVersion = android.os.Build.VERSION.SDK_INT;
+				int ICSAPIVersion = android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 
-        if (currentAPIVersion < ICSAPIVersion) {
-            // Prior to Ice Cream Sandwich, we can just pass null for the
-            // account name and account type.  addContactWithAccount will
-            // take care of the heavy lifting here, so off we go.
+				if (currentAPIVersion < ICSAPIVersion) {
+					// Prior to Ice Cream Sandwich, we can just pass null for the
+					// account name and account type.  addContactWithAccount will
+					// take care of the heavy lifting here, so off we go.
 
-            addContactWithAccount(task, contact, null, null);
-        }
-        else {
-            // On Ice Cream Sandwich and higher, it appears that the Right
-            // Way is to use the AccountPicker.  If the user has only one
-            // account, we get it back; otherwise they get to pick the one
-            // they want to use.
-            // 
-            // The AccountPicker uses an Intent, hence we need a 
-            // ForgeIntentResultHandler to do the heavy lifting.
+					addContactWithAccount(task, contact, null, null);
+				} else {
+					// On Ice Cream Sandwich and higher, it appears that the Right
+					// Way is to use the AccountPicker.  If the user has only one
+					// account, we get it back; otherwise they get to pick the one
+					// they want to use.
+					//
+					// The AccountPicker uses an Intent, hence we need a
+					// ForgeIntentResultHandler to do the heavy lifting.
 
-            ForgeIntentResultHandler handler = new ForgeIntentResultHandler() {
-                @Override
-                public void result(int requestCode, int resultCode, 
-                                   Intent data) {
-                    String accountName = null;
-                    String accountType = null;
+					ForgeIntentResultHandler handler = new ForgeIntentResultHandler() {
+						@Override
+						public void result(int requestCode, int resultCode,
+										   Intent data) {
+							String accountName = null;
+							String accountType = null;
 
-                    if (resultCode == RESULT_OK) {
-                        // All good.
+							if (resultCode == RESULT_OK) {
+								// All good.
 
-                        String acctNameKey = AccountManager.KEY_ACCOUNT_NAME;
-                        String acctTypeKey = AccountManager.KEY_ACCOUNT_TYPE;
+								String acctNameKey = AccountManager.KEY_ACCOUNT_NAME;
+								String acctTypeKey = AccountManager.KEY_ACCOUNT_TYPE;
 
-                        accountName = data.getStringExtra(acctNameKey);
-                        accountType = data.getStringExtra(acctTypeKey);
-                    
-                        ForgeLog.i("name: " + accountName);
-                        ForgeLog.i("type: " + accountType);
-                    }
-                    else if (resultCode == RESULT_CANCELED) {
-                        task.error("User cancelled account selection",
-                                   "EXPECTED_FAILURE", null);
-                        return;
-                    }
-                    else {    
-                        task.error("Unknown error selecting account",  
-                                   "UNEXPECTED_FAILURE", null);
-                        return;
-                    }
+								accountName = data.getStringExtra(acctNameKey);
+								accountType = data.getStringExtra(acctTypeKey);
 
-                    // OK, if here, we have an accountName and
-                    // accountType, and we can use addContactWithAccount
-                    // for the heavy lifting.
+								ForgeLog.i("name: " + accountName);
+								ForgeLog.i("type: " + accountType);
+							} else if (resultCode == RESULT_CANCELED) {
+								task.error("User cancelled account selection",
+										"EXPECTED_FAILURE", null);
+								return;
+							} else {
+								task.error("Unknown error selecting account",
+										"UNEXPECTED_FAILURE", null);
+								return;
+							}
 
-                    addContactWithAccount(task, contact,
-                                          accountName, accountType);
-                }
-            };
-            
-            // OK.  Fire up the AccountPicker using our handler.
+							// OK, if here, we have an accountName and
+							// accountType, and we can use addContactWithAccount
+							// for the heavy lifting.
 
-            Intent intent = 
-                AccountManager.newChooseAccountIntent(
-                    null, null,
+							addContactWithAccount(task, contact,
+									accountName, accountType);
+						}
+					};
+
+					// OK.  Fire up the AccountPicker using our handler.
+
+					Intent intent =
+							AccountManager.newChooseAccountIntent(
+									null, null,
 //                    new String[] { GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE },
-                    null,
-                    false, null, null, null, null);
+									null,
+									false, null, null, null, null);
 
-            ForgeApp.intentWithHandler(intent, handler);
-        }
+					ForgeApp.intentWithHandler(intent, handler);
+				}
+			}
+		});
     }
-
 }

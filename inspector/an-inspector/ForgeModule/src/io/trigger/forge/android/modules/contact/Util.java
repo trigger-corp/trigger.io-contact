@@ -8,13 +8,10 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
-import android.Manifest;
 import android.content.ContentProviderOperation;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.BaseTypes;
-import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 
 import com.google.common.base.Joiner;
@@ -25,11 +22,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 class Util {
-	public static boolean checkPermissions() {
-		return ContextCompat.checkSelfPermission(ForgeApp.getActivity(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED &&
-			   ContextCompat.checkSelfPermission(ForgeApp.getActivity(), Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED;
-	}
-	
 	public static JsonArray allFields = new JsonArray();
 	static {
 		allFields.add(new JsonPrimitive("nickname"));
