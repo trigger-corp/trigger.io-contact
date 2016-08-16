@@ -1,4 +1,8 @@
 [
-        { "do": { "add_ios_system_framework": "AddressBook.framework" } },
-        { "do": { "add_ios_system_framework": "AddressBookUI.framework" } }
+	{ "do": { "add_ios_system_framework": "AddressBook.framework" } },
+	{ "do": { "add_ios_system_framework": "AddressBookUI.framework" } },
+	{ "do": { "set_in_info_plist": {
+		"key": "NSContactsUsageDescription",
+		"value": "{{modules.contact.config.usage_description}}"
+	} } }
 ]

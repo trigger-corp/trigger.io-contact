@@ -6,6 +6,11 @@ address book on the device the app is running on.
 
 Contacts are represented by a simple JavaScript object which follows the [W3C Contacts API](http://www.w3.org/TR/contacts-api/#contact-interface>) as much as possible.
 
+## Config options
+
+usage_description
+:   This key lets you describe the reason your app accesses the user's contacts. When the system prompts the user to allow access, this string is displayed as part of the alert.
+
 ##API
 
 !method: forge.contact.select(success, error)
@@ -38,29 +43,29 @@ Contacts are represented by a simple JavaScript object which follows the [W3C Co
 !param: error `function(content)` called with details of any error which may occur
 
 !method: forge.contact.insert(contact, success, error)
-!param: contact `object` Contact object to add. Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`. See "Contact object" documentation below for the object format. 
+!param: contact `object` Contact object to add. Supported fields are: `name`, `nickname`, `phoneNumbers`, `emails`, `addresses`, `note`. See "Contact object" documentation below for the object format.
 !param: success `function(contact)` callback to be invoked when no errors occur
 !description: Inserts a contact without requiring user intervention. Returns the contact id if it was successfully added.
 !platforms: iOS, Android
 !param: error `function(content)` called with details of any error which may occur
 
 
-##Contact object 
+##Contact object
 
 When using ``selectAll``, the returned contacts list would look
 something like:
 
-    [
-        {
-            "id": "14894",
-            "displayName": "Mr Joe Bloggs"
-        },
-        {
-            "id": "481516",
-            "displayName": "Mr John Locke"
-        },
-        ...
-    ]
+	[
+		{
+			"id": "14894",
+			"displayName": "Mr Joe Bloggs"
+		},
+		{
+			"id": "481516",
+			"displayName": "Mr John Locke"
+		},
+		...
+	]
 
 Below is an example of a contact object returned from ``select`` or
 ``selectById``, with details for some field types.
@@ -69,72 +74,72 @@ Below is an example of a contact object returned from ``select`` or
 	  "id": "14894",
 	  "displayName": "Mr Joe Bloggs",
 	  "name": {
-	    "formatted": "Mr Joe Bloggs",
-	    "familyName": "Bloggs",
-	    "givenName": "Joe",
-	    "middleName": null,
-	    "honorificPrefix": "Mr",
-	    "honorificSuffix": null
+		"formatted": "Mr Joe Bloggs",
+		"familyName": "Bloggs",
+		"givenName": "Joe",
+		"middleName": null,
+		"honorificPrefix": "Mr",
+		"honorificSuffix": null
 	  },
 	  "nickname": "Joe",
 	  "phoneNumbers": [
-	    {
-	      "value": "+447554639203",
-	      "type": "work",
-	      "pref": false
-	    }
+		{
+		  "value": "+447554639203",
+		  "type": "work",
+		  "pref": false
+		}
 	  ],
 	  "emails": [
-	    {
-	      "value": "joe-bloggs@trigger.io",
-	      "type": "work",
-	      "pref": false
-	    }
+		{
+		  "value": "joe-bloggs@trigger.io",
+		  "type": "work",
+		  "pref": false
+		}
 	  ],
 	  "addresses": [
-	    {
-	      "country": "United Kingdom",
-	      "formatted": "1-11 Baches Street\nLondon\nLondon\N1 6DL\nUnited Kingdom",
-	      "locality": "London",
-	      "postalCode": "N1 6DL",
-	      "pref": false,
-	      "region": "London",
-	      "streetAddress": "1-11 Baches Street",
-	      "type": "work"
-	    }
+		{
+		  "country": "United Kingdom",
+		  "formatted": "1-11 Baches Street\nLondon\nLondon\N1 6DL\nUnited Kingdom",
+		  "locality": "London",
+		  "postalCode": "N1 6DL",
+		  "pref": false,
+		  "region": "London",
+		  "streetAddress": "1-11 Baches Street",
+		  "type": "work"
+		}
 	  ],
 	  "ims": [
-	    {
-	      "value": "joe-bloggs@trigger.io",
-	      "type": "gtalk",
-	      "pref": false
-	    }
+		{
+		  "value": "joe-bloggs@trigger.io",
+		  "type": "gtalk",
+		  "pref": false
+		}
 	  ],
 	  "organizations": [
-	    {
-	      "department": "Product development",
-	      "name": "Forger",
-	      "pref": false,
-	      "title": "Software engineer",
-	      "type": null
-	    }
+		{
+		  "department": "Product development",
+		  "name": "Forger",
+		  "pref": false,
+		  "title": "Software engineer",
+		  "type": null
+		}
 	  ],
 	  "birthday": "1983-11-23",
 	  "note": "Any text can go here",
 	  "photos": [
-	    {
-	      "value": "data:image/jpg;base64,ABCDEF1234",
-	      "type": null,
-	      "pref": false
-	    }
+		{
+		  "value": "data:image/jpg;base64,ABCDEF1234",
+		  "type": null,
+		  "pref": false
+		}
 	  ],
 	  "categories": null,
 	  "urls": [
-	    {
-	      "value": "http://trigger.io",
-	      "type": "homepage",
-	      "pref": false
-	    }
+		{
+		  "value": "http://trigger.io",
+		  "type": "homepage",
+		  "pref": false
+		}
 	  ],
 	}
 
