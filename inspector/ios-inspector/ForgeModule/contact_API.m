@@ -6,9 +6,12 @@
 //  Copyright (c) 2012 Trigger Corp. All rights reserved.
 //
 
+#import "JLContactsPermission.h"
+
 #import "contact_API.h"
 #import "contact_Delegate.h"
 #import "contact_Util.h"
+
 
 @implementation contact_API
 
@@ -137,6 +140,62 @@
     [[[ForgeApp sharedApp] viewController] presentViewController:newNavigationController animated:YES completion:nil];
 
     CFRelease(newPerson);
+}
+
+
++ (void)permissions_check:(ForgeTask*)task permission:(NSString *)permission {
+    JLPermissionsCore* jlpermission = [self resolvePermission:permission];
+    if (jlpermission == NULL) {
+        [task success:[NSNumber numberWithBool:NO]];
+        return;
+    }
+
+    JLAuthorizationStatus status = [jlpermission authorizationStatus];
+    [task success:[NSNumber numberWithBool:status == JLPermissionAuthorized]];
+}
+
+
++ (void)permissions_request:(ForgeTask*)task permission:(NSString *)permission {
+    JLPermissionsCore* jlpermission = [self resolvePermission:permission];
+    if (jlpermission == NULL) {
+        [task success:[NSNumber numberWithBool:NO]];
+        return;
+    }
+
+    if ([jlpermission authorizationStatus] == JLPermissionAuthorized) {
+        [task success:[NSNumber numberWithBool:YES]];
+        return;
+    }
+
+    NSDictionary* params = task.params;
+    NSString* rationale = [params objectForKey:@"rationale"];
+    if (rationale != nil) {
+        [jlpermission setRationale:rationale];
+    }
+
+    [jlpermission authorize:^(BOOL granted, NSError * _Nullable error) {
+        [jlpermission setRationale:nil]; // reset rationale
+        if (error) {
+            [ForgeLog d:[NSString stringWithFormat:@"permissions.check '%@' failed with error: %@", permission, error]];
+        }
+        [task success:[NSNumber numberWithBool:granted]];
+    }];
+}
+
+
++ (JLPermissionsCore*)resolvePermission:(NSString*)permission {
+    JLPermissionsCore* ret = NULL;
+    if ([permission isEqualToString:@""]) {
+        [ForgeLog d:[NSString stringWithFormat:@"Permission not supported on iOS:%@", permission]];
+
+    } else if ([permission isEqualToString:@"ios.permission.contacts"]) {
+        ret = [JLContactsPermission sharedInstance];
+
+    } else {
+        [ForgeLog w:[NSString stringWithFormat:@"Requested unknown permission:%@", permission]];
+    }
+
+    return ret;
 }
 
 @end

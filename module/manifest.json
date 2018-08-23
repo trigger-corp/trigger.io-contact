@@ -1,8 +1,8 @@
 {
-    "changes": "* Fixed: Contact name information would be incomplete when adding a new contact on Android.\n* Fixed: The contact ID returned after adding a new contact on Android would be incorrect.",
+    "changes": "* Fixed: iOS app store rejections caused by unused permission API's.",
     "description": "Access contacts saved by the user on their device.\n\nThe contact module allows you to programmatically, or via a user prompt, load contact information from the devices contact list.",
-    "min_platform_version": "v2.6.5",
+    "min_platform_version": "v2.6.9",
     "namespace": "contact",
-    "platform_version": "v2.6.5",
-    "version": "2.11"
+    "platform_version": "v2.6.9",
+    "version": "2.12"
 }

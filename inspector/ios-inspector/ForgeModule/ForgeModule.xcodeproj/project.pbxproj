@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		71BDD9D0212E9ADB0075EEA3 /* JLContactsPermission.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BDD9CF212E9ADB0075EEA3 /* JLContactsPermission.m */; };
 		71C560B216B1593A007A830A /* contact_API.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C560AD16B1593A007A830A /* contact_API.m */; };
 		71C560B316B1593A007A830A /* contact_Delegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C560AF16B1593A007A830A /* contact_Delegate.m */; };
 		71C560B416B1593A007A830A /* contact_Util.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C560B116B1593A007A830A /* contact_Util.m */; };
@@ -20,6 +21,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		71BDD9CE212E9ADB0075EEA3 /* JLContactsPermission.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JLContactsPermission.h; sourceTree = "<group>"; };
+		71BDD9CF212E9ADB0075EEA3 /* JLContactsPermission.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JLContactsPermission.m; sourceTree = "<group>"; };
 		71C560AC16B1593A007A830A /* contact_API.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contact_API.h; sourceTree = "<group>"; };
 		71C560AD16B1593A007A830A /* contact_API.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = contact_API.m; sourceTree = "<group>"; };
 		71C560AE16B1593A007A830A /* contact_Delegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contact_Delegate.h; sourceTree = "<group>"; };
@@ -62,6 +65,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		71BDD9CD212E9ADB0075EEA3 /* JLPermissions */ = {
+			isa = PBXGroup;
+			children = (
+				71BDD9CE212E9ADB0075EEA3 /* JLContactsPermission.h */,
+				71BDD9CF212E9ADB0075EEA3 /* JLContactsPermission.m */,
+			);
+			path = JLPermissions;
+			sourceTree = "<group>";
+		};
 		71C560AA16B1592B007A830A /* contact */ = {
 			isa = PBXGroup;
 			children = (
@@ -78,6 +90,7 @@
 		B31B6D4315C13D5200854074 = {
 			isa = PBXGroup;
 			children = (
+				71BDD9CD212E9ADB0075EEA3 /* JLPermissions */,
 				71C560AA16B1592B007A830A /* contact */,
 				B31B6D5015C13D5200854074 /* Frameworks */,
 				B31B6D4F15C13D5200854074 /* Products */,
@@ -188,6 +201,7 @@
 				71C560B216B1593A007A830A /* contact_API.m in Sources */,
 				71C560B316B1593A007A830A /* contact_Delegate.m in Sources */,
 				71C560B416B1593A007A830A /* contact_Util.m in Sources */,
+				71BDD9D0212E9ADB0075EEA3 /* JLContactsPermission.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
