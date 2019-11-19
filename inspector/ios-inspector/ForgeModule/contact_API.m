@@ -23,12 +23,16 @@
         [task error:@"User didn't grant access to address book" type:@"EXPECTED_FAILURE" subtype:nil];
 
     } else {
-        ABPeoplePickerNavigationController *picker = [[ABPeoplePickerNavigationController alloc] init];
+        ABPeoplePickerNavigationController *pickerController = [[ABPeoplePickerNavigationController alloc] init];
         
         contact_Delegate *delegate = [[contact_Delegate alloc] initWithTask:task];
-        picker.peoplePickerDelegate = delegate;
-        
-        [[[ForgeApp sharedApp] viewController] presentViewController:picker animated:YES completion:nil];
+        pickerController.peoplePickerDelegate = delegate;
+        if (@available(iOS 13.0, *)) {
+            pickerController.modalPresentationStyle = UIModalPresentationPopover;
+        } else {
+            pickerController.modalPresentationStyle = UIModalPresentationOverFullScreen;
+        }
+        [[[ForgeApp sharedApp] viewController] presentViewController:pickerController animated:YES completion:nil];
     }
 }
 
@@ -135,9 +139,14 @@
     controller.displayedPerson = newPerson;
     contact_Delegate *delegate = [[contact_Delegate alloc] initWithTask:task];
     controller.newPersonViewDelegate = delegate;
-    UINavigationController *newNavigationController = [[UINavigationController alloc]
+    UINavigationController *navigationController = [[UINavigationController alloc]
                                                        initWithRootViewController:controller];
-    [[[ForgeApp sharedApp] viewController] presentViewController:newNavigationController animated:YES completion:nil];
+    if (@available(iOS 13.0, *)) {
+        navigationController.modalPresentationStyle = UIModalPresentationPopover;
+    } else {
+        navigationController.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    }
+    [[[ForgeApp sharedApp] viewController] presentViewController:navigationController animated:YES completion:nil];
 
     CFRelease(newPerson);
 }

@@ -1,8 +1,8 @@
 {
-    "changes": "* Fixed: iOS app store rejections caused by unused permission API's.",
+    "changes": "* Fixed: Black screen on iOS 13 after selecting a contact.\n* Fixed: Test failure on iOS13 when adding contacts with null property fields.",
     "description": "Access contacts saved by the user on their device.\n\nThe contact module allows you to programmatically, or via a user prompt, load contact information from the devices contact list.",
-    "min_platform_version": "v2.6.9",
+    "min_platform_version": "v2.8.0",
     "namespace": "contact",
-    "platform_version": "v2.6.9",
-    "version": "2.12"
+    "platform_version": "v2.8.3",
+    "version": "2.13"
 }
